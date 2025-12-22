@@ -5,7 +5,6 @@ import random
 from data.db_session import global_init, db
 from data.models import (User, pw_secure, List)
 
-# Инициализация Flask-приложения
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -26,7 +25,6 @@ def load_user(user_id):
     return db.session.get(User, int(user_id))
 
 
-# Вход
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -40,11 +38,10 @@ def login():
         else:
             flash('Неверный email или пароль', 'danger')
 
-    return render_template()
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # Запуск приложения в режиме отладки
         app.run(host='127.0.0.1', port=5000, debug=True)

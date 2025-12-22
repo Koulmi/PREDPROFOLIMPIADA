@@ -35,3 +35,4 @@ class List(db.Model):
     inf = db.Column(db.Integer, default=0)
     summ = db.Column(db.Integer, default=0)
     achievements = db.Column(db.Integer, default=0)
+
