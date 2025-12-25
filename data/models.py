@@ -21,8 +21,8 @@ class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    login = db.Column(db.String(200), nullable='admin')
-    password = db.Column(db.String(200), nullable='sHjkfd23jHFSas[32')
+    login = db.Column(db.String(200), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
 
 class List(db.Model):

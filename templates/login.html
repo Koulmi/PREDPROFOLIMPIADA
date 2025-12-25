@@ -8,9 +8,19 @@
     <h1>Вход в аккаунт</h1>
     <form method="POST">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="login" id="email" name="login" placeholder="Ваш login" required>
+                <label for="login">Email</label>
+                <input type="login" id="login" name="login" placeholder="Ваш login" required>
             </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
             <div class="form-group">
                 <label for="password">Пароль</label>
