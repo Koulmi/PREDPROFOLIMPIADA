@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_session import db
+from datetime import datetime
 
 
 
@@ -17,7 +18,7 @@ pw_secure = Password_inkognito()
 names_cache = {}
 
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -35,4 +36,30 @@ class List(db.Model):
     inf = db.Column(db.Integer, default=0)
     summ = db.Column(db.Integer, default=0)
     achievements = db.Column(db.Integer, default=0)
+    consent = db.Column(db.Boolean, default=False)
+
+class Programs(db.Model):
+    __tablename__ = 'programs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(200), nullable=False)
+    name = db.Column(db.String(200), nullable=False)
+    budget = db.Column(db.Integer)
+
+class Applications(db.Model):
+    __tablename__ = 'applications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    applicants_id = db.Column(db.Integer, db.ForeignKey('list.id'), unique=True)
+    program_id = db.Column(db.Integer, db.ForeignKey('programs.id'), unique=True)
+    priority = db.Column(db.Integer)
+
+class History(db.Model):
+    __tablename__ = 'history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.now)
+    program_id = db.Column(db.Integer, db.ForeignKey('programs.id'), unique=True)
+    passing_score = db.Column(db.Integer, default=0)
+    is_shortage = db.Column(db.Boolean, default=False)
 
