@@ -13,7 +13,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 global_init(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'ADMIN_LOGIN'
+ADMIN_LOGIN = 'admin'
 
 
 def main():
@@ -27,6 +28,9 @@ def load_user(user_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return render_template('home.html')
+
     if request.method == 'POST':
         login = request.form['login']
         password = request.form['password']
@@ -44,4 +48,11 @@ def login():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        if not db.session.query(User).filter_by(login=ADMIN_LOGIN).first():
+            admin = User(
+                login=ADMIN_LOGIN,
+                password=pw_secure.encrypt_password('sHjkfd23jHFSas[32')
+            )
+            db.session.add(admin)
+            db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
