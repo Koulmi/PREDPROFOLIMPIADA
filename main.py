@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from werkzeug.utils import secure_filename
-import random
+import os
+import pandas as pd
 from data.db_session import global_init, db
 from data.models import (User, pw_secure, List)
 
@@ -13,9 +13,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 global_init(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'ADMIN_LOGIN'
+login_manager.login_view = 'login'
 ADMIN_LOGIN = 'admin'
 
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+print(pd.__version__)
 
 def main():
     app.run()
@@ -44,9 +50,35 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route('/')
 def home():
     return render_template('home.html')
+
+
+'''@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        flash('Файла нет в запросе')
+
+    file = request.files['file']
+
+    if file.filename == '':
+        flash('Файл не выбран')
+
+    if file:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filepath)
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(filepath)
+        elif file.filename.endswith('.xlsx'):
+            df = pd.read_excel(filepath)
+        else:
+            flash('Неподдерживаемый формат файла')
+
+        html_table = df.to_html(classes='table table-striped')
+        return render_template('result.html', table=html_table)'''
+
 
 @app.route('/logout')
 @login_required
