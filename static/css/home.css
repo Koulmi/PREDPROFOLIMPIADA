@@ -1,0 +1,54 @@
+div.topImage {
+    border-style: solid;
+    border-radius: 10px 10px 0px 0px;
+    border-color: #bf0000;
+    border-width: 5px 5px 0px 5px;
+    padding-bottom: 175px
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #bf0000;
+    display: inline-block;
+}
+
+li.left {
+    float: left;
+}
+
+li.right {
+    float: right;
+}
+
+ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+ul li a:hover {
+  background-color: #bf0000;
+}
+
+div.topBar {
+    background-color: #bf0000;
+}
+
+div.centerTopBar {
+    margin: auto;
+    width: 25%;
+}
+
+button.topBar {
+    border-style: none;
+    border-width: 0px;
+    font-size: 20px;
+    background-color: #950000;
+    padding: 10px 50px 10px 50px;
+    color: white;
+}
