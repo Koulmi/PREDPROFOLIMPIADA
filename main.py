@@ -56,7 +56,7 @@ def home():
     return render_template('home.html')
 
 
-'''@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         flash('Файла нет в запросе')
@@ -77,7 +77,7 @@ def upload_file():
             flash('Неподдерживаемый формат файла')
 
         html_table = df.to_html(classes='table table-striped')
-        return render_template('result.html', table=html_table)'''
+        return render_template('result.html', table=html_table)
 
 
 @app.route('/logout')
@@ -98,3 +98,4 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
+
