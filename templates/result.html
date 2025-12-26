@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результат загрузки</title>
+    <link rel="stylesheet" href="stackpath.bootstrapcdn.com">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Загруженная таблица</h1>
+        {{ table | safe }} {# | safe позволяет рендерить HTML-теги #}
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Загрузить еще</a>
+    </div>
+</body>
+</html>
