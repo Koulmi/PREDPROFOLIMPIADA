@@ -4,7 +4,6 @@ from .db_session import db
 from datetime import datetime
 
 
-
 class Password_inkognito:
     def encrypt_password(self, password):
         return generate_password_hash(password)
@@ -18,7 +17,7 @@ pw_secure = Password_inkognito()
 names_cache = {}
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -38,6 +37,7 @@ class List(db.Model):
     achievements = db.Column(db.Integer, default=0)
     consent = db.Column(db.Boolean, default=False)
 
+
 class Programs(db.Model):
     __tablename__ = 'programs'
 
@@ -45,6 +45,7 @@ class Programs(db.Model):
     code = db.Column(db.String(200), nullable=False)
     name = db.Column(db.String(200), nullable=False)
     budget = db.Column(db.Integer)
+
 
 class Applications(db.Model):
     __tablename__ = 'applications'
@@ -54,6 +55,7 @@ class Applications(db.Model):
     program_id = db.Column(db.Integer, db.ForeignKey('programs.id'), unique=True)
     priority = db.Column(db.Integer)
 
+
 class History(db.Model):
     __tablename__ = 'history'
 
@@ -62,4 +64,3 @@ class History(db.Model):
     program_id = db.Column(db.Integer, db.ForeignKey('programs.id'), unique=True)
     passing_score = db.Column(db.Integer, default=0)
     is_shortage = db.Column(db.Boolean, default=False)
-
