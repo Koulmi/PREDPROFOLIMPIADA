@@ -14,8 +14,7 @@
         <div class="centerTopBar">
         <ul>
         <li class="left"><a href="#home">Главная</a></li>
-        <li class="left"><a href="#news">Списки</a></li>
-        <li class="left"><a href="#contact">Загрузить данные</a></li>
+        <li class="left"><a href="{{ url_for('result') }}">Списки</a></li>
         </ul>
         </div>
 
@@ -26,6 +25,19 @@
         </div>
         <div>
             {% if current_user.is_authenticated %}
+                <li class="left"><form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit" value="Загрузить">
+                </form></li>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            {% endwith %}
                 <a href="{{ url_for('logout') }}">Выйти</a>
             {% endif %}
         </div>

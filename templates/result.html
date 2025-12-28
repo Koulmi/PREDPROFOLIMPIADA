@@ -5,10 +5,10 @@
     <link rel="stylesheet" href="stackpath.bootstrapcdn.com">
 </head>
 <body>
+    <a href="{{ url_for('home') }}">Назад</a>
     <div class="container mt-4">
         <h1>Загруженная таблица</h1>
-        {{ table | safe }} {# | safe позволяет рендерить HTML-теги #}
-        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Загрузить еще</a>
+        {{ table | safe }}
     </div>
 </body>
 </html>

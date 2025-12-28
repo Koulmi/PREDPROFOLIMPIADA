@@ -29,12 +29,11 @@ class List(db.Model):
     __tablename__ = 'list'
 
     id = db.Column(db.Integer, primary_key=True)
-    math = db.Column(db.Integer, default=0)
+    maths = db.Column(db.Integer, default=0)
     russian = db.Column(db.Integer, default=0)
-    physic = db.Column(db.Integer, default=0)
-    inf = db.Column(db.Integer, default=0)
-    summ = db.Column(db.Integer, default=0)
+    physics_it = db.Column(db.Integer, default=0)
     achievements = db.Column(db.Integer, default=0)
+    summ = db.Column(db.Integer, default=0)
     consent = db.Column(db.Boolean, default=False)
 
 

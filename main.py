@@ -21,7 +21,6 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-print(pd.__version__)
 
 def main():
     app.run()
@@ -59,25 +58,52 @@ def home():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        flash('Файла нет в запросе')
-
+        flash("Файла нет в запросе")
     file = request.files['file']
-
     if file.filename == '':
-        flash('Файл не выбран')
+        flash("Файл не выбран")
 
     if file:
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)
         if file.filename.endswith('.csv'):
-            df = pd.read_csv(filepath)
-        elif file.filename.endswith('.xlsx'):
-            df = pd.read_excel(filepath)
+            df = pd.read_csv(file)
+        elif file.filename.endswith('.xlsx') or file.filename.endswith('.xls'):
+            df = pd.read_excel(file)
         else:
-            flash('Неподдерживаемый формат файла')
+            flash("Неподдерживаемый формат файла")
+        for index, row in df.iterrows():
+            new_item = List(id=row['id'], maths=row['Математика'], russian=row['Русский'],
+                            physics_it=row['Физика/Информатика'], achievements=row['Индивидуальные достижения'],
+                            summ=row['Сумма'], consent=row['Согласие'])
+            db.session.add(new_item)
 
+        db.session.commit()
         html_table = df.to_html(classes='table table-striped')
         return render_template('result.html', table=html_table)
+
+
+@app.route('/result')
+def result():
+    records = db.session.execute(db.select(List)).scalars().all()
+
+    if not records:
+        return render_template('result.html', table="<h3>Список пуст. Загрузите файл.</h3>")
+
+    data = []
+    for item in records:
+        data.append({
+            'id': item.id,
+            'Математика': item.maths,
+            'Русский': item.russian,
+            'Физика/Информатика': item.physics_it,
+            'Индивидуальные достижения': item.achievements,
+            'Сумма': item.summ,
+            'Согласие': item.consent
+        })
+
+    df = pd.DataFrame(data)
+    html_table = df.to_html(classes='table table-striped', index=False)
+
+    return render_template('result.html', table=html_table)
 
 
 @app.route('/logout')
