@@ -71,6 +71,7 @@ def upload_file():
         else:
             flash("Неподдерживаемый формат файла")
         for index, row in df.iterrows():
+
             new_item = List(id=row['id'], maths=row['Математика'], russian=row['Русский'],
                             physics_it=row['Физика/Информатика'], achievements=row['Индивидуальные достижения'],
                             summ=row['Сумма'], consent=row['Согласие'])
@@ -90,6 +91,10 @@ def result():
 
     data = []
     for item in records:
+        if item.consent:
+            consent = 'Есть'
+        else:
+            consent = 'Нет'
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -97,7 +102,7 @@ def result():
             'Физика/Информатика': item.physics_it,
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
-            'Согласие': item.consent
+            'Согласие': consent
         })
 
     df = pd.DataFrame(data)
