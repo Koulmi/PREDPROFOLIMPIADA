@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 import pandas as pd
 from data.db_session import global_init, db
-from data.models import (User, pw_secure, List)
+from data.models import (User, pw_secure, List, Applications)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -72,11 +72,18 @@ def upload_file():
             flash("Неподдерживаемый формат файла")
         for index, row in df.iterrows():
 
-            new_item = List(id=row['id'], maths=row['Математика'], russian=row['Русский'],
-                            physics_it=row['Физика/Информатика'], achievements=row['Индивидуальные достижения'],
-                            summ=row['Сумма'], consent=row['Согласие'])
-            db.session.add(new_item)
-
+            new_item = List(id=row['id'],
+                            maths=row['Математика'],
+                            russian=row['Русский'],
+                            physics_it=row['Физика/Информатика'],
+                            achievements=row['Индивидуальные достижения'],
+                            summ=row['Сумма'],
+                            consent=row['Согласие'])
+            db.session.merge(new_item)
+            new_priority = Applications(priority=row['Приоритет'],
+                                        applicants_id=row['id']
+            )
+            db.session.add(new_priority)
         db.session.commit()
         html_table = df.to_html(classes='table table-striped')
         return render_template('result.html', table=html_table)
@@ -84,26 +91,44 @@ def upload_file():
 
 @app.route('/result')
 def result():
-    records = db.session.execute(db.select(List)).scalars().all()
+    applicants = db.session.query(List).all()
 
-    if not records:
-        return render_template('result.html', table="<h3>Список пуст. Загрузите файл.</h3>")
+    if not applicants:
+        return render_template('result.html', table="<h3>Список пуст.</h3>")
 
     data = []
-    for item in records:
-        if item.consent:
-            consent = 'Есть'
-        else:
-            consent = 'Нет'
-        data.append({
-            'id': item.id,
-            'Математика': item.maths,
-            'Русский': item.russian,
-            'Физика/Информатика': item.physics_it,
-            'Индивидуальные достижения': item.achievements,
-            'Сумма': item.summ,
-            'Согласие': consent
-        })
+    for item in applicants:
+        if item.applications:
+            for app in item.applications:
+                if item.consent:
+                    consent = 'Есть'
+                else:
+                    consent = 'Нет'
+                data.append({
+                    'id': item.id,
+                    'Математика': item.maths,
+                    'Русский': item.russian,
+                    'Физика/Информатика': item.physics_it,
+                    'Индивидуальные достижения': item.achievements,
+                    'Сумма': item.summ,
+                    'Согласие': consent,
+                    'Приоритет': app.priority
+                })
+        if not item.applications:
+            if item.consent:
+                consent = 'Есть'
+            else:
+                consent = 'Нет'
+            data.append({
+                'id': item.id,
+                'Математика': item.maths,
+                'Русский': item.russian,
+                'Физика/Информатика': item.physics_it,
+                'Индивидуальные достижения': item.achievements,
+                'Сумма': item.summ,
+                'Согласие': consent,
+                'Приоритет': 0
+            })
 
     df = pd.DataFrame(data)
     html_table = df.to_html(classes='table table-striped', index=False)
@@ -129,4 +154,3 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
-
