@@ -43,7 +43,6 @@ class Programs(db.Model):
     __tablename__ = 'programs'
 
     id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(200), nullable=False)
     name = db.Column(db.String(200), nullable=False)
     budget = db.Column(db.Integer)
 
@@ -55,6 +54,8 @@ class Applications(db.Model):
     applicants_id = db.Column(db.Integer, db.ForeignKey('list.id'))
     program_id = db.Column(db.Integer, db.ForeignKey('programs.id'))
     priority = db.Column(db.Integer)
+
+    programs = db.relationship('Programs', backref='application')
 
 
 class History(db.Model):

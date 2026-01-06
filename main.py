@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 import pandas as pd
 from data.db_session import global_init, db
-from data.models import (User, pw_secure, List, Applications)
+from data.models import (User, pw_secure, List, Applications, Programs)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -55,8 +55,8 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
+@app.route('/upload_first', methods=['POST'])
+def upload_first():
     if 'file' not in request.files:
         flash("Файла нет в запросе")
     file = request.files['file']
@@ -70,8 +70,8 @@ def upload_file():
             df = pd.read_excel(file)
         else:
             flash("Неподдерживаемый формат файла")
-        for index, row in df.iterrows():
 
+        for index, row in df.iterrows():
             new_item = List(id=row['id'],
                             maths=row['Математика'],
                             russian=row['Русский'],
@@ -80,59 +80,141 @@ def upload_file():
                             summ=row['Сумма'],
                             consent=row['Согласие'])
             db.session.merge(new_item)
-            new_priority = Applications(priority=row['Приоритет'],
-                                        applicants_id=row['id']
-            )
-            db.session.add(new_priority)
+
+            for i in range(1, 5):
+                column_name = f'Приоритет{i}'
+                prog_name = row[column_name]
+
+
+                program = Programs(name=prog_name)
+                db.session.add(program)
+                db.session.flush()
+
+
+                new_priority = Applications(
+                    priority=i,
+                    applicants_id=row['id'],
+                    program_id=program.id
+                )
+                db.session.add(new_priority)
         db.session.commit()
         html_table = df.to_html(classes='table table-striped')
         return render_template('result.html', table=html_table)
 
 
-@app.route('/result')
-def result():
-    applicants = db.session.query(List).all()
+@app.route('/result_pm')
+def result_pm():
+    applicants_with_pm = db.session.query(List, Applications, Programs). \
+        join(Applications, List.id == Applications.applicants_id). \
+        join(Programs, Applications.program_id == Programs.id). \
+        filter(Programs.name == 'ПМ').all()
 
-    if not applicants:
-        return render_template('result.html', table="<h3>Список пуст.</h3>")
+    if not applicants_with_pm:
+        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
 
     data = []
-    for item in applicants:
-        if item.applications:
-            for app in item.applications:
-                if item.consent:
-                    consent = 'Есть'
-                else:
-                    consent = 'Нет'
-                data.append({
-                    'id': item.id,
-                    'Математика': item.maths,
-                    'Русский': item.russian,
-                    'Физика/Информатика': item.physics_it,
-                    'Индивидуальные достижения': item.achievements,
-                    'Сумма': item.summ,
-                    'Согласие': consent,
-                    'Приоритет': app.priority
-                })
-        if not item.applications:
-            if item.consent:
-                consent = 'Есть'
-            else:
-                consent = 'Нет'
-            data.append({
-                'id': item.id,
-                'Математика': item.maths,
-                'Русский': item.russian,
-                'Физика/Информатика': item.physics_it,
-                'Индивидуальные достижения': item.achievements,
-                'Сумма': item.summ,
-                'Согласие': consent,
-                'Приоритет': 0
-            })
+    for item, app, prog in applicants_with_pm:
+        data.append({
+            'id': item.id,
+            'Математика': item.maths,
+            'Русский': item.russian,
+            'Физика/Информатика': item.physics_it,
+            'Индивидуальные достижения': item.achievements,
+            'Сумма': item.summ,
+            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Приоритет': app.priority
+        })
 
     df = pd.DataFrame(data)
-    html_table = df.to_html(classes='table table-striped', index=False)
 
+    html_table = df.to_html(classes='table table-striped', index=False)
+    return render_template('result.html', table=html_table)
+
+
+@app.route('/result_ivt')
+def result_ivt():
+    applicants_with_pm = db.session.query(List, Applications, Programs). \
+        join(Applications, List.id == Applications.applicants_id). \
+        join(Programs, Applications.program_id == Programs.id). \
+        filter(Programs.name == 'ИВТ').all()
+
+    if not applicants_with_pm:
+        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+
+    data = []
+    for item, app, prog in applicants_with_pm:
+        data.append({
+            'id': item.id,
+            'Математика': item.maths,
+            'Русский': item.russian,
+            'Физика/Информатика': item.physics_it,
+            'Индивидуальные достижения': item.achievements,
+            'Сумма': item.summ,
+            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Приоритет': app.priority
+        })
+
+    df = pd.DataFrame(data)
+
+    html_table = df.to_html(classes='table table-striped', index=False)
+    return render_template('result.html', table=html_table)
+
+
+@app.route('/result_itss')
+def result_itss():
+    applicants_with_pm = db.session.query(List, Applications, Programs). \
+        join(Applications, List.id == Applications.applicants_id). \
+        join(Programs, Applications.program_id == Programs.id). \
+        filter(Programs.name == 'ИТСС').all()
+
+    if not applicants_with_pm:
+        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+
+    data = []
+    for item, app, prog in applicants_with_pm:
+        data.append({
+            'id': item.id,
+            'Математика': item.maths,
+            'Русский': item.russian,
+            'Физика/Информатика': item.physics_it,
+            'Индивидуальные достижения': item.achievements,
+            'Сумма': item.summ,
+            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Приоритет': app.priority
+        })
+
+    df = pd.DataFrame(data)
+
+    html_table = df.to_html(classes='table table-striped', index=False)
+    return render_template('result.html', table=html_table)
+
+
+@app.route('/result_ib')
+def result_ib():
+    applicants_with_pm = db.session.query(List, Applications, Programs). \
+        join(Applications, List.id == Applications.applicants_id). \
+        join(Programs, Applications.program_id == Programs.id). \
+        filter(Programs.name == 'ИБ').all()
+
+    if not applicants_with_pm:
+        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+
+    data = []
+    for item, app, prog in applicants_with_pm:
+        data.append({
+            'id': item.id,
+            'Математика': item.maths,
+            'Русский': item.russian,
+            'Физика/Информатика': item.physics_it,
+            'Индивидуальные достижения': item.achievements,
+            'Сумма': item.summ,
+            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Приоритет': app.priority
+        })
+
+    df = pd.DataFrame(data)
+
+    html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result.html', table=html_table)
 
 
