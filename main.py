@@ -104,16 +104,18 @@ def upload_first():
 
 @app.route('/result_pm')
 def result_pm():
-    applicants_with_pm = db.session.query(List, Applications, Programs). \
+    applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
         filter(Programs.name == 'ПМ').all()
 
-    if not applicants_with_pm:
-        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+    count = len(applicants)
+
+    if not applicants:
+        return render_template('result.html')
 
     data = []
-    for item, app, prog in applicants_with_pm:
+    for item, applic, prog in applicants:
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -122,27 +124,32 @@ def result_pm():
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
             'Согласие': 'Есть' if item.consent else 'Нет',
-            'Приоритет': app.priority
+            'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
+    if not df.empty:
+        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result.html', table=html_table)
+    return render_template('result_pm.html', table=html_table, count=count)
 
 
 @app.route('/result_ivt')
 def result_ivt():
-    applicants_with_pm = db.session.query(List, Applications, Programs). \
+    applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
         filter(Programs.name == 'ИВТ').all()
 
-    if not applicants_with_pm:
-        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+    count = len(applicants)
+
+    if not applicants:
+        return render_template('result.html')
 
     data = []
-    for item, app, prog in applicants_with_pm:
+    for item, applic, prog in applicants:
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -151,27 +158,32 @@ def result_ivt():
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
             'Согласие': 'Есть' if item.consent else 'Нет',
-            'Приоритет': app.priority
+            'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
+    if not df.empty:
+        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result.html', table=html_table)
+    return render_template('result_ivt.html', table=html_table, count=count)
 
 
 @app.route('/result_itss')
 def result_itss():
-    applicants_with_pm = db.session.query(List, Applications, Programs). \
+    applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
         filter(Programs.name == 'ИТСС').all()
 
-    if not applicants_with_pm:
-        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+    count = len(applicants)
+
+    if not applicants:
+        return render_template('result.html')
 
     data = []
-    for item, app, prog in applicants_with_pm:
+    for item, applic, prog in applicants:
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -180,27 +192,32 @@ def result_itss():
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
             'Согласие': 'Есть' if item.consent else 'Нет',
-            'Приоритет': app.priority
+            'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
+    if not df.empty:
+        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result.html', table=html_table)
+    return render_template('result_itss.html', table=html_table, count=count)
 
 
 @app.route('/result_ib')
 def result_ib():
-    applicants_with_pm = db.session.query(List, Applications, Programs). \
+    applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
         filter(Programs.name == 'ИБ').all()
 
-    if not applicants_with_pm:
-        return render_template('result.html', table="<h3>Список пуст (ПМ не найдено).</h3>")
+    count = len(applicants)
+
+    if not applicants:
+        return render_template('result.html')
 
     data = []
-    for item, app, prog in applicants_with_pm:
+    for item, applic, prog in applicants:
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -209,13 +226,16 @@ def result_ib():
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
             'Согласие': 'Есть' if item.consent else 'Нет',
-            'Приоритет': app.priority
+            'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
+    if not df.empty:
+        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result.html', table=html_table)
+    return render_template('result_ib.html', table=html_table, count=count)
 
 
 @app.route('/logout')

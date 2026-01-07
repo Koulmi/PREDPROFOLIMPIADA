@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 
-num_rows = 50
+num_rows = 100
 directions = ['ПМ', 'ИВТ', 'ИТСС', 'ИБ']
 columns_order = ['id', 'Математика', 'Русский', 'Физика/Информатика',
                  'Индивидуальные достижения', 'Сумма', 'Согласие',

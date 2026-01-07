@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результат загрузки</title>
+    <link rel="stylesheet" href="stackpath.bootstrapcdn.com">
+</head>
+<body>
+    <a href="{{ url_for('home') }}">Назад</a>
+    <div class="container mt-4">
+        <h1>Загруженная таблица</h1>
+        {{ table | safe }}
+    </div>
+    <h2>Всего абитуриентов: {{ count }}</h2>
+</body>
+</html>
