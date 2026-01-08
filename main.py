@@ -110,12 +110,21 @@ def result_pm():
         filter(Programs.name == 'ПМ').all()
 
     count = len(applicants)
+    consent_count = 0
+    priority_count = 0
 
     if not applicants:
         return render_template('result.html')
 
     data = []
     for item, applic, prog in applicants:
+        if item.consent:
+            if applic.priority == 1:
+                priority_count += 1
+            consent = 'Есть'
+            consent_count += 1
+        else:
+            consent = 'Нет'
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -123,17 +132,18 @@ def result_pm():
             'Физика/Информатика': item.physics_it,
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
-            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Согласие': consent,
             'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
     if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_pm.html', table=html_table, count=count)
+    return render_template('result_ib.html', table=html_table, count=count,
+                           consent_count=consent_count, priority_count=priority_count)
 
 
 @app.route('/result_ivt')
@@ -144,12 +154,21 @@ def result_ivt():
         filter(Programs.name == 'ИВТ').all()
 
     count = len(applicants)
+    consent_count = 0
+    priority_count = 0
 
     if not applicants:
         return render_template('result.html')
 
     data = []
     for item, applic, prog in applicants:
+        if item.consent:
+            if applic.priority == 1:
+                priority_count += 1
+            consent = 'Есть'
+            consent_count += 1
+        else:
+            consent = 'Нет'
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -157,17 +176,18 @@ def result_ivt():
             'Физика/Информатика': item.physics_it,
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
-            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Согласие': consent,
             'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
     if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ivt.html', table=html_table, count=count)
+    return render_template('result_ib.html', table=html_table, count=count,
+                           consent_count=consent_count, priority_count=priority_count)
 
 
 @app.route('/result_itss')
@@ -178,12 +198,21 @@ def result_itss():
         filter(Programs.name == 'ИТСС').all()
 
     count = len(applicants)
+    consent_count = 0
+    priority_count = 0
 
     if not applicants:
         return render_template('result.html')
 
     data = []
     for item, applic, prog in applicants:
+        if item.consent:
+            if applic.priority == 1:
+                priority_count += 1
+            consent = 'Есть'
+            consent_count += 1
+        else:
+            consent = 'Нет'
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -191,17 +220,18 @@ def result_itss():
             'Физика/Информатика': item.physics_it,
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
-            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Согласие': consent,
             'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
     if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_itss.html', table=html_table, count=count)
+    return render_template('result_ib.html', table=html_table, count=count,
+                           consent_count=consent_count, priority_count=priority_count)
 
 
 @app.route('/result_ib')
@@ -212,12 +242,21 @@ def result_ib():
         filter(Programs.name == 'ИБ').all()
 
     count = len(applicants)
+    consent_count = 0
+    priority_count = 0
 
     if not applicants:
         return render_template('result.html')
 
     data = []
     for item, applic, prog in applicants:
+        if item.consent:
+            if applic.priority == 1:
+                priority_count += 1
+            consent = 'Есть'
+            consent_count += 1
+        else:
+            consent = 'Нет'
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -225,17 +264,18 @@ def result_ib():
             'Физика/Информатика': item.physics_it,
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
-            'Согласие': 'Есть' if item.consent else 'Нет',
+            'Согласие': consent,
             'Приоритет': applic.priority
         })
 
     df = pd.DataFrame(data)
 
     if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Приоритет'], ascending=[True, True])
+        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count)
+    return render_template('result_ib.html', table=html_table, count=count,
+                           consent_count=consent_count, priority_count=priority_count)
 
 
 @app.route('/logout')
