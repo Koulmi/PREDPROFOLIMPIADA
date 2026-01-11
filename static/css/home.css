@@ -1,9 +1,9 @@
 div.topImage {
     border-style: solid;
-    border-radius: 10px 10px 0px 0px;
     border-color: #bf0000;
-    border-width: 5px 5px 0px 5px;
-    padding-bottom: 175px
+    border-width: 0px;
+    padding-bottom: 175px;
+    background-color: white;
 }
 
 ul {
@@ -26,22 +26,25 @@ li.right {
 ul li a {
     display: block;
     color: white;
-    text-align: center;
     padding: 14px 16px;
     text-decoration: none;
 }
 
+
 ul li a:hover {
-  background-color: #bf0000;
+  background-color: #930000;
 }
 
 div.topBar {
+    border-radius: 10px 10px 0px 0px;
     background-color: #bf0000;
 }
 
 div.centerTopBar {
+    text-align: center;
+    font-size: 150%;
     margin: auto;
-    width: 25%;
+    width: 50%;
 }
 
 button.topBar {
