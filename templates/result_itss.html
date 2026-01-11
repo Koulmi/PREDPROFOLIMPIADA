@@ -2,14 +2,53 @@
 <html>
 <head>
     <title>Результат загрузки</title>
-    <link rel="stylesheet" href="stackpath.bootstrapcdn.com">
+    <link rel="stylesheet" type="text/css" href="/static/css/table.css">
 </head>
 <body>
+<div class="topImage">
+
+    </div>
+
+    <div class="topBar">
+        <div class="centerTopBar">
+        <ul>
+        <li class="left"><a href="#home">Главная</a></li>
+        <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
+        <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
+        <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
+        <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
+            {% if not current_user.is_authenticated %}
+                <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
+            {% endif %}
+        </ul>
+        </div>
+        <div>
+            {% if current_user.is_authenticated %}
+                <li class="left"><form method="POST" action="/upload_first" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit" value="Загрузить 01.08">
+                </form></li>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            {% endwith %}
+                <a href="{{ url_for('logout') }}">Выйти</a>
+            {% endif %}
+        </div>
+    </div>
+<div class="return">
     <a href="{{ url_for('home') }}">Назад</a>
-    <div class="container mt-4">
+</div>
+
+    <div class="table">
         <h1>Загруженная таблица</h1>
         {{ table | safe }}
     </div>
-    <h2>Всего абитуриентов: {{ count }}</h2>
+    <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
 </body>
 </html>
