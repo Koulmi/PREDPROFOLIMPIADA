@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from data.db_session import global_init, db
 from data.models import (User, pw_secure, List, Applications, Programs)
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -70,6 +71,10 @@ def upload_first():
             df = pd.read_excel(file)
         else:
             flash("Неподдерживаемый формат файла")
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
 
         for index, row in df.iterrows():
             new_item = List(id=row['id'],
@@ -107,7 +112,7 @@ def result_pm():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ПМ').all()
+        filter(Programs.name == 'ПМ').group_by(List.id).all()
 
     count = len(applicants)
     consent_count = 0
@@ -142,7 +147,7 @@ def result_pm():
         df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count,
+    return render_template('result_pm.html', table=html_table, count=count,
                            consent_count=consent_count, priority_count=priority_count)
 
 
@@ -151,7 +156,7 @@ def result_ivt():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИВТ').all()
+        filter(Programs.name == 'ИВТ').group_by(List.id).all()
 
     count = len(applicants)
     consent_count = 0
@@ -186,7 +191,7 @@ def result_ivt():
         df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count,
+    return render_template('result_ivt.html', table=html_table, count=count,
                            consent_count=consent_count, priority_count=priority_count)
 
 
@@ -195,7 +200,7 @@ def result_itss():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИТСС').all()
+        filter(Programs.name == 'ИТСС').group_by(List.id).all()
 
     count = len(applicants)
     consent_count = 0
@@ -230,7 +235,7 @@ def result_itss():
         df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
 
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count,
+    return render_template('result_itss.html', table=html_table, count=count,
                            consent_count=consent_count, priority_count=priority_count)
 
 
@@ -239,7 +244,7 @@ def result_ib():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИБ').all()
+        filter(Programs.name == 'ИБ').group_by(List.id).all()
 
     count = len(applicants)
     consent_count = 0
