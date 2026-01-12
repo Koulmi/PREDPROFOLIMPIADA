@@ -1,5 +1,6 @@
 import pandas as pd
 import random
+import openpyxl
 
 num_rows = 70
 directions = ['ПМ', 'ПМ', 'ИВТ', 'ИВТ', 'ИВТ', 'ИТСС', 'ИТСС', 'ИБ']
@@ -46,4 +47,4 @@ for i in range(num_rows):
 
 
 df = pd.DataFrame(data, columns=columns_order)
-df.to_excel('random_table.xlsx', index=False)
+df.to_excel('01.08.xlsx', index=False)
