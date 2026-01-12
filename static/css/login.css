@@ -1,3 +1,7 @@
+body {
+    background-color: #692123;
+}
+
 table {
   width: 650px;
   border-top: 7px solid rgb(43, 129, 17);
@@ -24,12 +28,31 @@ div.login {
     border-radius: 20px;
     text-align: center;
     margin: 0;
-    padding: 25px 75px 75px 75px;
+    padding: 50px 75px 75px 75px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+div.return {
+    background-color: #bf0000;
+    border-radius: 30px;
+    font-size: 40px;
+    position: absolute;
+
+    margin: 14.3% 0% 0% 58.5%;
+    text-align: center;
+    width: 3%;
+}
+
+div.return a {
+    display: block;
+    color: white;
+    padding: 0% 0% 0%;
+    text-decoration: none;
+}
+
 
 div.inp {
     margin-bottom: 10px;
@@ -60,6 +83,7 @@ input[type=password] {
 
 h1.loginHeadline {
     font-size: 60px;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 
@@ -69,7 +93,7 @@ h1.loginHeadline {
 
 button.login {
     font-size: 40px;
-    background-color: #A40D14;
+    background-color: #bf0000;
     border-radius: 10px;
     padding: 10px 50px 10px 50px;
     margin-top: 10px;
