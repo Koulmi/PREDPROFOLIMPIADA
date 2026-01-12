@@ -17,9 +17,11 @@
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
-            {% if not current_user.is_authenticated %}
-                <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
-            {% endif %}
+            {% if current_user.is_authenticated %}
+                    <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
+                {% else %}
+                    <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
+                {% endif %}
         </ul>
         </div>
         <div>
@@ -37,7 +39,6 @@
                         {% endfor %}
                     {% endif %}
             {% endwith %}
-                <a href="{{ url_for('logout') }}">Выйти</a>
             {% endif %}
         </div>
     </div>
@@ -52,3 +53,4 @@
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
 </body>
 </html>
+
