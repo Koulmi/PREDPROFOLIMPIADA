@@ -1,9 +1,15 @@
 div.topImage {
-    border-style: solid;
+    border-style: none;
     border-color: #bf0000;
     border-width: 0px;
-    padding-bottom: 175px;
+    padding: 0px;
     background-color: white;
+}
+
+div.topImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill
 }
 
 ul {
@@ -31,14 +37,21 @@ ul li a {
 }
 
 div.return {
-    background-color: #930000;
+    background-color: #a61717;
     position: absolute;
-    border-radius: 10px;
-    font-size: 25px;
+    border-radius: 30px;
+    font-size: 30px;
 
-    margin: 3% 0% 1% 10%;
+    margin: 0.8% 0% 0% 64%;
     text-align: center;
-    width: 10%;
+    width: 6.5%;
+}
+
+div.return a {
+    display: block;
+    color: white;
+    padding: 5% 0.5%;
+    text-decoration: none;
 }
 
 h2.summary {
@@ -48,16 +61,10 @@ h2.summary {
 
     margin: auto;
     margin-top: 1%;
+    margin-bottom: 1%;
     padding: 1%;
     text-align: center;
     width: 20%;
-}
-
-div.return a {
-    display: block;
-    color: white;
-    padding: 10% 1%;
-    text-decoration: none;
 }
 
 ul li a:hover {
@@ -95,7 +102,7 @@ tr:nth-child(odd) {background-color: #eaeafc;}
 tr:nth-child(even) {background-color: #dedef2;}
 
 div.topBar {
-    border-radius: 10px 10px 0px 0px;
+
     background-color: #bf0000;
 }
 
