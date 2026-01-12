@@ -5,9 +5,11 @@
     <title>Вход</title>
     <link rel="stylesheet" type="text/css" href="/static/css/login.css">
 </head>
-<body style="background-color: #9B3134;">
-<a href="{{ url_for('home') }}">Назад</a>
+<body>
+
+
 <div class="login">
+
     <h1 class="loginHeadline">Вход для админа</h1>
     <h2>Введите свои данные для авторизации</h2>
     <form method="POST">
@@ -36,5 +38,8 @@
             </div>
         </form>
 </div>
+<div class="return">
+    <a href="{{ url_for('home') }}">&#8617;</a>
+    </div>
 </body>
 </html>
