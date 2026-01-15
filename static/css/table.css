@@ -1,9 +1,9 @@
+body {
+    margin: 0px;
+}
+
 div.topImage {
-    border-style: none;
-    border-color: #bf0000;
-    border-width: 0px;
-    padding: 0px;
-    background-color: white;
+
 }
 
 div.topImage img {
@@ -14,8 +14,8 @@ div.topImage img {
 
 ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+    margin: 0px;
+    padding: 0px;
     overflow: hidden;
     background-color: #bf0000;
     display: inline-block;
@@ -127,7 +127,6 @@ form {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin: 20px auto;
     padding: 15px;
     width: fit-content;
 }
