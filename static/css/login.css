@@ -41,7 +41,7 @@ div.return {
     font-size: 40px;
     position: absolute;
 
-    margin: 14.3% 0% 0% 58.5%;
+    margin: 11.5% 0% 0% 61%;
     text-align: center;
     width: 3%;
 }
@@ -93,9 +93,12 @@ h1.loginHeadline {
 
 button.login {
     font-size: 40px;
+    border: none;
+    border-style: solid;
     background-color: #bf0000;
     border-radius: 10px;
     padding: 10px 50px 10px 50px;
     margin-top: 10px;
     color: white;
 }
+
