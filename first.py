@@ -1,50 +1,90 @@
 import pandas as pd
 import random
-import openpyxl
 
-num_rows = 70
-directions = ['ПМ', 'ПМ', 'ИВТ', 'ИВТ', 'ИВТ', 'ИТСС', 'ИТСС', 'ИБ']
-columns_order = ['id', 'Математика', 'Русский', 'Физика/Информатика',
-                 'Индивидуальные достижения', 'Сумма', 'Согласие',
-                 'Приоритет1', 'Приоритет2', 'Приоритет3', 'Приоритет4']
+
+dirs = ['ПМ', 'ИВТ', 'ИТСС', 'ИБ']
+directions = {
+    ('ПМ', 'ИВТ', 'ИТСС', 'ИБ'): 3,
+
+    ('ПМ', 'ИВТ', 'ИТСС'): 5,
+    ('ПМ', 'ИВТ', 'ИБ'): 5,
+    ('ПМ', 'ИТСС', 'ИБ'): 5,
+    ('ИВТ', 'ИТСС', 'ИБ'): 5,
+
+    ('ПМ', 'ИВТ'): 22,
+    ('ПМ', 'ИТСС'): 17,
+    ('ПМ', 'ИБ'): 20,
+    ('ИВТ', 'ИТСС'): 19,
+    ('ИВТ', 'ИБ'): 22,
+    ('ИТСС', 'ИБ'): 17,
+
+    ('ПМ',): 60,
+    ('ИВТ',): 100,
+    ('ИТСС',): 50,
+    ('ИБ',): 70
+}
+
+final_counts = {}
+group_4 = ('ПМ', 'ИВТ', 'ИТСС', 'ИБ')
+final_counts[group_4] = directions[group_4]
+
+for group in directions:
+    if len(group) == 3:
+        count = directions[group]
+        count = count - final_counts[group_4]
+        final_counts[group] = count
+
+for group in directions:
+    if len(group) == 2:
+        count = directions[group]
+        for big_group in final_counts:
+            first_subject = group[0]
+            second_subject = group[1]
+
+            if first_subject in big_group and second_subject in big_group:
+                count = count - final_counts[big_group]
+
+        final_counts[group] = count
+
+for group in directions:
+    if len(group) == 1:
+        count = directions[group]
+        subject = group[0]
+        for big_group in final_counts:
+            if subject in big_group:
+                count = count - final_counts[big_group]
+
+        final_counts[group] = count
+
 data = []
+current_id = 1
 
-for i in range(num_rows):
-    maths = random.randint(40, 100)
-    rus = random.randint(40, 100)
-    phys_it = random.randint(40, 100)
-    ind = random.randint(0, 100)
-    summ = maths + rus + phys_it + ind
+for combo, count in final_counts.items():
+    for _ in range(count):
+        new_directions = list(combo)
+        random.shuffle(new_directions)
+        new_directions += [False] * (4 - len(new_directions))
 
-    if random.random() >= 1 / 3:
-        consent = True
-    else:
-        consent = False
+        maths = random.randint(40, 100)
+        rus = random.randint(40, 100)
+        phys_it = random.randint(41, 100)
+        ind = random.randint(0, 10)
+        summ = maths + rus + phys_it + ind
 
-    prio_dict = {d: '-' for d in directions}
+        data.append({
+            'id': current_id,
+            'Математика': maths,
+            'Русский': rus,
+            'Физика/Информатика': phys_it,
+            'Индивидуальные достижения': ind,
+            'Сумма': summ,
+            'Согласие': random.random() >= 1 / 3,
+            'Приоритет1': new_directions[0],
+            'Приоритет2': new_directions[1],
+            'Приоритет3': new_directions[2],
+            'Приоритет4': new_directions[3]
+        })
+        current_id += 1
 
-    num_choices = random.randint(1, 4)
-    random.shuffle(directions)
-    new_directions = directions[:num_choices]
-
-
-    row = {
-        'id': i + 1,
-        'Математика': maths,
-        'Русский': rus,
-        'Физика/Информатика': phys_it,
-        'Индивидуальные достижения': ind,
-        'Сумма': summ,
-        'Согласие': consent,
-        'Приоритет1': new_directions[0],
-        'Приоритет2': new_directions[1] if len(new_directions) > 1 else 'False',
-        'Приоритет3': new_directions[2] if len(new_directions) > 2 else 'False',
-        'Приоритет4': new_directions[3] if len(new_directions) > 3 else 'False'
-    }
-
-
-    data.append(row)
-
-
-df = pd.DataFrame(data, columns=columns_order)
+df = pd.DataFrame(data)
 df.to_excel('01.08.xlsx', index=False)
