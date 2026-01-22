@@ -22,6 +22,13 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
+BUDGET = {
+    'ПМ': 40,
+    'ИВТ': 50,
+    'ИТСС': 30,
+    'ИБ': 20
+}
+
 
 def main():
     app.run()
@@ -107,8 +114,38 @@ def upload_first():
         return render_template('result.html', table=html_table)
 
 
+def run_distribution():
+    db.session.query(Applications).update({Applications.is_enrolled: False})
+    db.session.commit()
+
+    all_programs = db.session.query(Programs).all()
+
+    prog_limits = {}
+    prog_filled = {}
+
+    for prog in all_programs:
+        limit = BUDGET.get(prog.name)
+        prog_limits[prog.id] = limit
+        prog_filled[prog.id] = 0
+
+    candidates = db.session.query(List).filter_by(consent=True).order_by(List.summ.desc(), List.maths.desc()).all()
+
+    for student in candidates:
+        apps = sorted(student.applications, key=lambda x: x.priority)
+
+        for applic in apps:
+            prog_id = applic.program_id
+            if prog_filled[prog_id] < prog_limits[prog_id]:
+                applic.is_enrolled = True
+                prog_filled[prog_id] += 1
+                break
+
+    db.session.commit()
+
+
 @app.route('/result_pm')
 def result_pm():
+    run_distribution()
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
@@ -116,7 +153,7 @@ def result_pm():
 
     count = len(applicants)
     consent_count = 0
-    priority_count = 0
+    enrolled_count = 0
 
     if not applicants:
         return render_template('result.html')
@@ -124,10 +161,10 @@ def result_pm():
     data = []
     for item, applic, prog in applicants:
         if item.consent:
-            if applic.priority == 1:
-                priority_count += 1
             consent = 'Есть'
             consent_count += 1
+            if applic.is_enrolled:
+                enrolled_count += 1
         else:
             consent = 'Нет'
         data.append({
@@ -143,16 +180,15 @@ def result_pm():
 
     df = pd.DataFrame(data)
 
-    if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
-
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_pm.html', table=html_table, count=count,
-                           consent_count=consent_count, priority_count=priority_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count)
 
 
 @app.route('/result_ivt')
 def result_ivt():
+    run_distribution()
+
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
@@ -160,7 +196,7 @@ def result_ivt():
 
     count = len(applicants)
     consent_count = 0
-    priority_count = 0
+    enrolled_count = 0
 
     if not applicants:
         return render_template('result.html')
@@ -168,10 +204,10 @@ def result_ivt():
     data = []
     for item, applic, prog in applicants:
         if item.consent:
-            if applic.priority == 1:
-                priority_count += 1
             consent = 'Есть'
             consent_count += 1
+            if applic.is_enrolled:
+                enrolled_count += 1
         else:
             consent = 'Нет'
         data.append({
@@ -192,11 +228,13 @@ def result_ivt():
 
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_ivt.html', table=html_table, count=count,
-                           consent_count=consent_count, priority_count=priority_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count)
 
 
 @app.route('/result_itss')
 def result_itss():
+    run_distribution()
+
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
@@ -204,7 +242,7 @@ def result_itss():
 
     count = len(applicants)
     consent_count = 0
-    priority_count = 0
+    enrolled_count = 0
 
     if not applicants:
         return render_template('result.html')
@@ -212,10 +250,10 @@ def result_itss():
     data = []
     for item, applic, prog in applicants:
         if item.consent:
-            if applic.priority == 1:
-                priority_count += 1
             consent = 'Есть'
             consent_count += 1
+            if applic.is_enrolled:
+                enrolled_count += 1
         else:
             consent = 'Нет'
         data.append({
@@ -231,16 +269,15 @@ def result_itss():
 
     df = pd.DataFrame(data)
 
-    if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
-
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_itss.html', table=html_table, count=count,
-                           consent_count=consent_count, priority_count=priority_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count)
 
 
 @app.route('/result_ib')
 def result_ib():
+    run_distribution()
+
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
@@ -248,7 +285,7 @@ def result_ib():
 
     count = len(applicants)
     consent_count = 0
-    priority_count = 0
+    enrolled_count = 0
 
     if not applicants:
         return render_template('result.html')
@@ -256,10 +293,10 @@ def result_ib():
     data = []
     for item, applic, prog in applicants:
         if item.consent:
-            if applic.priority == 1:
-                priority_count += 1
             consent = 'Есть'
             consent_count += 1
+            if applic.is_enrolled:
+                enrolled_count += 1
         else:
             consent = 'Нет'
         data.append({
@@ -275,12 +312,9 @@ def result_ib():
 
     df = pd.DataFrame(data)
 
-    if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
-
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_ib.html', table=html_table, count=count,
-                           consent_count=consent_count, priority_count=priority_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count)
 
 
 @app.route('/logout')
