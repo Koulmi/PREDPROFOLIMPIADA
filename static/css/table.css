@@ -76,9 +76,11 @@ h1.center {
 }
 
 div.table {
-    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    width: 50%;
+    width: 100%;
 }
 
 table {
