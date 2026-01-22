@@ -69,8 +69,8 @@
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
     <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
     <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
+<h1 class="center">Загруженная таблица</h1>
     <div class="table">
-        <h1>Загруженная таблица</h1>
         {{ table | safe }}
     </div>
 <script>
@@ -208,4 +208,5 @@ function resetFilters() {
     </script>
 </body>
 </html>
+
 
