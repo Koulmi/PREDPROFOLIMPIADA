@@ -53,6 +53,7 @@ class Applications(db.Model):
     applicants_id = db.Column(db.Integer, db.ForeignKey('list.id'))
     program_id = db.Column(db.Integer, db.ForeignKey('programs.id'))
     priority = db.Column(db.Integer)
+    is_enrolled = db.Column(db.Boolean, default=False)
 
     programs = db.relationship('Programs', backref='application')
 
