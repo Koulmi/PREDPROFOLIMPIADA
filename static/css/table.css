@@ -71,6 +71,10 @@ ul li a:hover {
   background-color: #930000;
 }
 
+h1.center {
+    text-align: center;
+}
+
 div.table {
     margin: auto;
     text-align: center;
