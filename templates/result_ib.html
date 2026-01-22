@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const table = document.querySelector('table');
     if (table) {
         originalRows = Array.from(table.rows).map(row => row.cloneNode(true));
-        console.log('Сохранено строк:', originalRows.length);
     }
 
     setTimeout(() => {
@@ -92,18 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function applyFilters() {
     currentConsentFilter = document.getElementById('consentFilter').value;
-
     const table = document.querySelector('table');
-    if (!table) {
-        console.error('Таблица не найдена');
-        return;
-    }
-
-    if (!originalRows || originalRows.length === 0) {
-        console.error('Нет сохраненных строк таблицы');
-        return;
-    }
-
     let consentColumnIndex = -1;
     let sumColumnIndex = -1;
     const headerCells = originalRows[0].cells;
@@ -117,29 +105,18 @@ function applyFilters() {
             sumColumnIndex = i;
         }
     }
-
-    console.log('Индекс колонки "Согласие":', consentColumnIndex);
-    console.log('Текущий фильтр:', currentConsentFilter);
-
     let visibleRows = [];
 
     for (let i = 1; i < originalRows.length; i++) {
         const row = originalRows[i];
         const cells = row.cells;
-
         if (cells.length <= consentColumnIndex) continue;
-
         let showRow = true;
-
         if (currentConsentFilter !== 'all' && consentColumnIndex !== -1) {
             const consentCell = cells[consentColumnIndex];
             if (consentCell) {
                 const consentText = consentCell.textContent.trim();
-
                 const hasConsent = consentText === 'Есть';
-
-                console.log(`Строка ${i}, согласие: "${consentText}", hasConsent: ${hasConsent}`);
-
                 if (currentConsentFilter === 'true') {
                     showRow = hasConsent;
                 } else if (currentConsentFilter === 'false') {
@@ -147,7 +124,6 @@ function applyFilters() {
                 }
             }
         }
-
         if (showRow) {
             let sumValue = 0;
             if (sumColumnIndex !== -1) {
@@ -156,7 +132,6 @@ function applyFilters() {
                     sumValue = parseInt(sumCell.textContent.trim()) || 0;
                 }
             }
-
             visibleRows.push({
                 row: row.cloneNode(true),
                 sum: sumValue,
@@ -165,9 +140,6 @@ function applyFilters() {
             });
         }
     }
-
-    console.log('Отфильтровано строк:', visibleRows.length);
-
     if (currentSortDirection) {
         visibleRows.sort((a, b) => {
             if (currentSortDirection === 'desc') {
@@ -177,7 +149,6 @@ function applyFilters() {
             }
         });
     }
-
     updateTable(visibleRows);
     updateTableHeader();
 }
@@ -190,50 +161,40 @@ function sortBySum(direction) {
 function updateTable(visibleRows) {
     const table = document.querySelector('table');
     if (!table) return;
-
     const headerRow = originalRows[0].cloneNode(true);
-
     while (table.firstChild) {
         table.removeChild(table.firstChild);
     }
-
     table.appendChild(headerRow);
 
     visibleRows.forEach(item => {
         table.appendChild(item.row);
     });
-
-    console.log('Таблица обновлена, строк:', visibleRows.length);
 }
 
 function updateTableHeader() {
     const table = document.querySelector('table');
     if (!table) return;
-
     const totalRows = table.rows.length - 1;
     let filterText = '';
-
     if (currentConsentFilter === 'true') {
         filterText = ' (только с согласием)';
     } else if (currentConsentFilter === 'false') {
         filterText = ' (только без согласия)';
     }
-
     let sortText = '';
     if (currentSortDirection === 'desc') {
         sortText = ' - отсортировано по убыванию суммы';
     } else if (currentSortDirection === 'asc') {
         sortText = ' - отсортировано по возрастанию суммы';
     }
-
     const h1 = document.querySelector('.table h1');
     if (h1) {
         h1.textContent = `Таблица абитуриентов${filterText}${sortText} (показано: ${totalRows})`;
     }
-
     const summaryElement = document.querySelector('.summary');
     if (summaryElement) {
-        summaryElement.textContent = `Показано абитуриентов: ${totalRows}`;
+        summaryElement.textContent = `Всего абитуриентов: ${totalRows}`;
     }
 }
 
@@ -247,5 +208,4 @@ function resetFilters() {
     </script>
 </body>
 </html>
-
 
