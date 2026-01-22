@@ -65,6 +65,17 @@ for combo, count in final_counts.items():
         random.shuffle(new_directions)
         new_directions += [False] * (4 - len(new_directions))
 
+        if 'ИБ' in new_directions:
+            if random.random() <= 1 / 5:
+                consent = True
+            else:
+                consent = False
+        else:
+            if random.random() <= 1 / 3:
+                consent = True
+            else:
+                consent = False
+
         maths = random.randint(40, 100)
         rus = random.randint(40, 100)
         phys_it = random.randint(41, 100)
@@ -78,7 +89,7 @@ for combo, count in final_counts.items():
             'Физика/Информатика': phys_it,
             'Индивидуальные достижения': ind,
             'Сумма': summ,
-            'Согласие': random.random() >= 1 / 3,
+            'Согласие': consent,
             'Приоритет1': new_directions[0],
             'Приоритет2': new_directions[1],
             'Приоритет3': new_directions[2],
