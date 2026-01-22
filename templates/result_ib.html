@@ -66,12 +66,13 @@
             <button onclick="resetFilters()" style="background-color: #f44336;">Сбросить фильтры</button>
         </div>
     </div>
+    <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
+    <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
+    <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
     <div class="table">
         <h1>Загруженная таблица</h1>
         {{ table | safe }}
     </div>
-    <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
-    <h2 class="summary">Абитуриенты с согласиями: {{ priority_count }}/20</h2>
 <script>
        let originalRows = null;
 let currentConsentFilter = 'all';
@@ -246,4 +247,5 @@ function resetFilters() {
     </script>
 </body>
 </html>
+
 
