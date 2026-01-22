@@ -71,6 +71,29 @@ ul li a:hover {
   background-color: #930000;
 }
 
+.tableSort {
+
+}
+
+button.sortApply {
+    border-style: none;
+    border-width: 0px;
+    border-radius: 5px;
+    font-size: 20px;
+    background-color: #bf0000;
+    padding: 10px 50px 10px 50px;
+    color: white;
+    text-align: center;
+}
+
+button.sortReset {
+
+}
+
+button.sortApply:hover {
+    background-color: #930000;
+}
+
 h1.center {
     text-align: center;
 }
