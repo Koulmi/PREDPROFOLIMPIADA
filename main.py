@@ -82,6 +82,18 @@ def upload_first():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
+        ids_in_file = df['id'].tolist()
+
+        all_apps = Applications.query.all()
+
+        for applic in all_apps:
+            if applic.applicants_id not in ids_in_file:
+                db.session.delete(applic)
+
+        all_items = List.query.all()
+        for item in all_items:
+            if item.id not in ids_in_file:
+                db.session.delete(item)
 
         for index, row in df.iterrows():
             new_item = List(id=row['id'],
