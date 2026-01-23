@@ -12,7 +12,7 @@ div.topImage img {
     object-fit: fill
 }
 
-ul {
+ul.top {
     list-style-type: none;
     margin: 0px;
     padding: 0px;
@@ -29,7 +29,7 @@ li.right {
     float: right;
 }
 
-ul li a {
+ul.top li a {
     display: block;
     color: white;
     padding: 14px 16px;
@@ -75,23 +75,69 @@ ul li a:hover {
 
 }
 
+div.aboveTable {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+div.filters {
+    display: grid;
+    float: left;
+    margin-left: 15%;
+    align-items: center;
+    margin-top: 2%
+}
+
+div.filter-group label {
+    font-size: 20px;
+}
+
+div.filter-group select {
+    font-size: 20px;
+}
+
+ul.filters {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+
+
+button.sort-btn {
+    margin: 10px 0px 10px;
+    font-size: 20px;
+}
+
+ul.filters li button{
+    margin: 5px 0px 5px;
+    font-size: 20px;;
+}
+
 button.sortApply {
     border-style: none;
     border-width: 0px;
     border-radius: 5px;
     font-size: 20px;
     background-color: #bf0000;
-    padding: 10px 50px 10px 50px;
+    padding: 10px 10px;
+    margin-right: 40%;
     color: white;
-    text-align: center;
-}
-
-button.sortReset {
-
 }
 
 button.sortApply:hover {
     background-color: #930000;
+}
+
+button.sortReset {
+    border-style: none;
+    background: none;
+    font-size: 20px;
+    color: #930000;
+    margin-top: 3px;
+    margin-right: 40%;
 }
 
 h1.center {
@@ -156,7 +202,7 @@ form {
     display: flex;
     justify-content: center;
     gap: 10px;
-    padding: 15px;
+    padding-bottom: 10px;
     width: fit-content;
 }
 
