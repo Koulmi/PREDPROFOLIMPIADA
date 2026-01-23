@@ -11,7 +11,7 @@
 
     <div class="topBar">
         <div class="centerTopBar">
-        <ul>
+        <ul class="top">
         <li class="left"><a href="#home">Главная</a></li>
         <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
@@ -45,7 +45,9 @@
 <div class="return">
     <a href="{{ url_for('home') }}">Назад</a>
 </div>
-    <div class="filters">
+
+    <div class="aboveTable">
+        <div class="filters">
         <div class="filter-group">
             <label>Фильтр по согласию:</label>
             <select id="consentFilter">
@@ -57,18 +59,23 @@
 
         <div class="filter-group">
             <label>Сортировка по сумме баллов:</label>
-            <button onclick="sortBySum('desc')" class="sort-btn">По убыванию</button>
-            <button onclick="sortBySum('asc')" class="sort-btn">По возрастанию</button>
+            <ul class="filters">
+            <li><button onclick="sortBySum('desc')">По убыванию</button></li>
+            <li><button onclick="sortBySum('asc')">По возрастанию</button></li>
+            </ul>
         </div>
 
-        <div class="sort-controls">
-            <button onclick="applyFilters()">Применить фильтры</button>
-            <button onclick="resetFilters()" style="background-color: #f44336;">Сбросить фильтры</button>
-        </div>
+            <button class="sortApply" onclick="applyFilters()">Применить фильтры</button>
+            <button onclick="resetFilters()" class="sortReset">Сбросить фильтры</button>
+
     </div>
+        <div>
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
     <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
     <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
+        </div>
+
+    </div>
 <h1 class="center">Загруженная таблица</h1>
     <div class="table">
         {{ table | safe }}
@@ -208,5 +215,4 @@ function resetFilters() {
     </script>
 </body>
 </html>
-
 
