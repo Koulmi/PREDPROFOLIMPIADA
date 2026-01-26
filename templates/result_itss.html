@@ -11,7 +11,7 @@
 
     <div class="topBar">
         <div class="centerTopBar">
-        <ul>
+        <ul class="top">
         <li class="left"><a href="#home">Главная</a></li>
         <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
@@ -45,7 +45,9 @@
 <div class="return">
     <a href="{{ url_for('home') }}">Назад</a>
 </div>
-    <div class="filters">
+
+    <div class="aboveTable">
+        <div class="filters">
         <div class="filter-group">
             <label>Фильтр по согласию:</label>
             <select id="consentFilter">
@@ -57,20 +59,25 @@
 
         <div class="filter-group">
             <label>Сортировка по сумме баллов:</label>
-            <button onclick="sortBySum('desc')" class="sort-btn">По убыванию</button>
-            <button onclick="sortBySum('asc')" class="sort-btn">По возрастанию</button>
+            <ul class="filters">
+            <li><button onclick="sortBySum('desc')">По убыванию</button></li>
+            <li><button onclick="sortBySum('asc')">По возрастанию</button></li>
+            </ul>
         </div>
 
-        <div class="sort-controls">
-            <button onclick="applyFilters()">Применить фильтры</button>
-            <button onclick="resetFilters()" style="background-color: #f44336;">Сбросить фильтры</button>
-        </div>
+            <button class="sortApply" onclick="applyFilters()">Применить фильтры</button>
+            <button onclick="resetFilters()" class="sortReset">Сбросить фильтры</button>
+
     </div>
+        <div>
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
-    <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/30</h2>
-    <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/30</h2>
+    <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
+    <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
+        </div>
+
+    </div>
+<h1 class="center">Загруженная таблица</h1>
     <div class="table">
-        <h1>Загруженная таблица</h1>
         {{ table | safe }}
     </div>
 <script>
@@ -82,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const table = document.querySelector('table');
     if (table) {
         originalRows = Array.from(table.rows).map(row => row.cloneNode(true));
-        console.log('Сохранено строк:', originalRows.length);
     }
 
     setTimeout(() => {
@@ -92,18 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function applyFilters() {
     currentConsentFilter = document.getElementById('consentFilter').value;
-
     const table = document.querySelector('table');
-    if (!table) {
-        console.error('Таблица не найдена');
-        return;
-    }
-
-    if (!originalRows || originalRows.length === 0) {
-        console.error('Нет сохраненных строк таблицы');
-        return;
-    }
-
     let consentColumnIndex = -1;
     let sumColumnIndex = -1;
     const headerCells = originalRows[0].cells;
@@ -117,29 +112,18 @@ function applyFilters() {
             sumColumnIndex = i;
         }
     }
-
-    console.log('Индекс колонки "Согласие":', consentColumnIndex);
-    console.log('Текущий фильтр:', currentConsentFilter);
-
     let visibleRows = [];
 
     for (let i = 1; i < originalRows.length; i++) {
         const row = originalRows[i];
         const cells = row.cells;
-
         if (cells.length <= consentColumnIndex) continue;
-
         let showRow = true;
-
         if (currentConsentFilter !== 'all' && consentColumnIndex !== -1) {
             const consentCell = cells[consentColumnIndex];
             if (consentCell) {
                 const consentText = consentCell.textContent.trim();
-
                 const hasConsent = consentText === 'Есть';
-
-                console.log(`Строка ${i}, согласие: "${consentText}", hasConsent: ${hasConsent}`);
-
                 if (currentConsentFilter === 'true') {
                     showRow = hasConsent;
                 } else if (currentConsentFilter === 'false') {
@@ -147,7 +131,6 @@ function applyFilters() {
                 }
             }
         }
-
         if (showRow) {
             let sumValue = 0;
             if (sumColumnIndex !== -1) {
@@ -156,7 +139,6 @@ function applyFilters() {
                     sumValue = parseInt(sumCell.textContent.trim()) || 0;
                 }
             }
-
             visibleRows.push({
                 row: row.cloneNode(true),
                 sum: sumValue,
@@ -165,9 +147,6 @@ function applyFilters() {
             });
         }
     }
-
-    console.log('Отфильтровано строк:', visibleRows.length);
-
     if (currentSortDirection) {
         visibleRows.sort((a, b) => {
             if (currentSortDirection === 'desc') {
@@ -177,7 +156,6 @@ function applyFilters() {
             }
         });
     }
-
     updateTable(visibleRows);
     updateTableHeader();
 }
@@ -190,50 +168,40 @@ function sortBySum(direction) {
 function updateTable(visibleRows) {
     const table = document.querySelector('table');
     if (!table) return;
-
     const headerRow = originalRows[0].cloneNode(true);
-
     while (table.firstChild) {
         table.removeChild(table.firstChild);
     }
-
     table.appendChild(headerRow);
 
     visibleRows.forEach(item => {
         table.appendChild(item.row);
     });
-
-    console.log('Таблица обновлена, строк:', visibleRows.length);
 }
 
 function updateTableHeader() {
     const table = document.querySelector('table');
     if (!table) return;
-
     const totalRows = table.rows.length - 1;
     let filterText = '';
-
     if (currentConsentFilter === 'true') {
         filterText = ' (только с согласием)';
     } else if (currentConsentFilter === 'false') {
         filterText = ' (только без согласия)';
     }
-
     let sortText = '';
     if (currentSortDirection === 'desc') {
         sortText = ' - отсортировано по убыванию суммы';
     } else if (currentSortDirection === 'asc') {
         sortText = ' - отсортировано по возрастанию суммы';
     }
-
     const h1 = document.querySelector('.table h1');
     if (h1) {
         h1.textContent = `Таблица абитуриентов${filterText}${sortText} (показано: ${totalRows})`;
     }
-
     const summaryElement = document.querySelector('.summary');
     if (summaryElement) {
-        summaryElement.textContent = `Показано абитуриентов: ${totalRows}`;
+        summaryElement.textContent = `Всего абитуриентов: ${totalRows}`;
     }
 }
 
