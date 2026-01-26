@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 import os
 import pandas as pd
 from data.db_session import global_init, db
-from data.models import (User, pw_secure, List, Applications, Programs)
+from data.models import User, pw_secure, List, Applications, Programs
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -42,18 +42,18 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return render_template('home.html')
+        return redirect(url_for('home'))
 
     if request.method == 'POST':
-        login = request.form['login']
+        login_input = request.form['login']
         password = request.form['password']
-        user = db.session.query(User).filter_by(login=login).first()
+        user = db.session.query(User).filter_by(login=login_input).first()
 
         if user and pw_secure.verify_password(user.password, password):
             login_user(user)
             return redirect(url_for('home'))
         else:
-            flash('Неверный email или пароль', 'danger')
+            flash('Неверный логин или пароль', 'danger')
 
     return render_template('login.html')
 
@@ -66,10 +66,13 @@ def home():
 @app.route('/upload_first', methods=['POST'])
 def upload_first():
     if 'file' not in request.files:
-        flash("Файла нет в запросе")
+        flash("Файла нет в запросе", 'danger')
+        return redirect(url_for('home'))
+
     file = request.files['file']
     if file.filename == '':
-        flash("Файл не выбран")
+        flash("Файл не выбран", 'danger')
+        return redirect(url_for('home'))
 
     if file:
         if file.filename.endswith('.csv'):
@@ -78,6 +81,10 @@ def upload_first():
             df = pd.read_excel(file)
         else:
             flash("Неподдерживаемый формат файла")
+            return redirect(url_for('home'))
+
+        df = df.fillna('')
+
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
@@ -85,7 +92,6 @@ def upload_first():
         ids_in_file = df['id'].tolist()
 
         all_apps = Applications.query.all()
-
         for applic in all_apps:
             if applic.applicants_id not in ids_in_file:
                 db.session.delete(applic)
@@ -96,37 +102,54 @@ def upload_first():
                 db.session.delete(item)
 
         for index, row in df.iterrows():
-            new_item = List(id=row['id'],
-                            maths=row['Математика'],
-                            russian=row['Русский'],
-                            physics_it=row['Физика/Информатика'],
-                            achievements=row['Индивидуальные достижения'],
-                            summ=row['Сумма'],
-                            consent=row['Согласие'])
+            new_item = List(
+                id=row['id'],
+                maths=row['Математика'],
+                russian=row['Русский'],
+                physics_it=row['Физика/Информатика'],
+                achievements=row['Индивидуальные достижения'],
+                summ=row['Сумма'],
+                consent=bool(row['Согласие']) if row['Согласие'] != '' else False
+            )
+
             db.session.merge(new_item)
 
             for i in range(1, 5):
                 column_name = f'Приоритет{i}'
-                prog_name = row[column_name]
+                prog_name = str(row[column_name]).strip()
 
+                if not prog_name or prog_name == '' or prog_name.lower() == 'nan':
+                    continue
 
-                program = Programs(name=prog_name)
-                db.session.add(program)
-                db.session.flush()
+                program = Programs.query.filter_by(name=prog_name).first()
+                if not program:
+                    program = Programs(name=prog_name)
+                    db.session.add(program)
+                    db.session.flush()
 
-
-                new_priority = Applications(
-                    priority=i,
+                old_priority = Applications.query.filter_by(
                     applicants_id=row['id'],
-                    program_id=program.id
-                )
-                db.session.add(new_priority)
+                    priority=i
+                ).first()
+
+                if old_priority:
+                    old_priority.program_id = program.id
+                else:
+                    new_priority = Applications(
+                        priority=i,
+                        applicants_id=row['id'],
+                        program_id=program.id,
+                        is_enrolled=False
+                    )
+                    db.session.add(new_priority)
+
         db.session.commit()
-        html_table = df.to_html(classes='table table-striped')
-        return render_template('result.html', table=html_table)
+        flash("Данные успешно загружены!")
+        return redirect(url_for('home'))
 
 
 def run_distribution():
+
     db.session.query(Applications).update({Applications.is_enrolled: False})
     db.session.commit()
 
@@ -136,20 +159,23 @@ def run_distribution():
     prog_filled = {}
 
     for prog in all_programs:
-        limit = BUDGET.get(prog.name)
+        limit = BUDGET.get(prog.name, 0)
         prog_limits[prog.id] = limit
         prog_filled[prog.id] = 0
 
-    candidates = db.session.query(List).filter_by(consent=True).order_by(List.summ.desc(), List.maths.desc()).all()
+    candidates = db.session.query(List).filter_by(consent=True).order_by(
+        List.summ.desc(),
+        List.maths.desc()
+    ).all()
 
     for student in candidates:
         apps = sorted(student.applications, key=lambda x: x.priority)
 
         for applic in apps:
             prog_id = applic.program_id
-            if prog_filled[prog_id] < prog_limits[prog_id]:
+            if prog_filled.get(prog_id, 0) < prog_limits.get(prog_id, 0):
                 applic.is_enrolled = True
-                prog_filled[prog_id] += 1
+                prog_filled[prog_id] = prog_filled.get(prog_id, 0) + 1
                 break
 
     db.session.commit()
@@ -161,7 +187,8 @@ def result_pm():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ПМ').group_by(List.id).all()
+        filter(Programs.name == 'ПМ'). \
+        order_by(List.summ.desc()).all()
 
     count = len(applicants)
     consent_count = 0
@@ -169,7 +196,6 @@ def result_pm():
 
     if not applicants:
         return render_template('result.html')
-
     data = []
     for item, applic, prog in applicants:
         if item.consent:
@@ -179,6 +205,7 @@ def result_pm():
                 enrolled_count += 1
         else:
             consent = 'Нет'
+
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -191,10 +218,13 @@ def result_pm():
         })
 
     df = pd.DataFrame(data)
-
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_pm.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+
+    return render_template('result_pm.html',
+                           table=html_table,
+                           count=count,
+                           consent_count=consent_count,
+                           enrolled_count=enrolled_count)
 
 
 @app.route('/result_ivt')
@@ -204,7 +234,8 @@ def result_ivt():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИВТ').group_by(List.id).all()
+        filter(Programs.name == 'ИВТ'). \
+        order_by(List.summ.desc()).all()
 
     count = len(applicants)
     consent_count = 0
@@ -222,6 +253,7 @@ def result_ivt():
                 enrolled_count += 1
         else:
             consent = 'Нет'
+
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -230,17 +262,17 @@ def result_ivt():
             'Индивидуальные достижения': item.achievements,
             'Сумма': item.summ,
             'Согласие': consent,
-            'Приоритет': applic.priority
+            'Приоритет': applic.priority,
         })
 
     df = pd.DataFrame(data)
-
-    if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
-
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ivt.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+
+    return render_template('result_ivt.html',
+                           table=html_table,
+                           count=count,
+                           consent_count=consent_count,
+                           enrolled_count=enrolled_count)
 
 
 @app.route('/result_itss')
@@ -250,7 +282,8 @@ def result_itss():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИТСС').group_by(List.id).all()
+        filter(Programs.name == 'ИТСС'). \
+        order_by(List.summ.desc()).all()
 
     count = len(applicants)
     consent_count = 0
@@ -268,6 +301,7 @@ def result_itss():
                 enrolled_count += 1
         else:
             consent = 'Нет'
+
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -280,10 +314,13 @@ def result_itss():
         })
 
     df = pd.DataFrame(data)
-
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_itss.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+
+    return render_template('result_itss.html',
+                           table=html_table,
+                           count=count,
+                           consent_count=consent_count,
+                           enrolled_count=enrolled_count)
 
 
 @app.route('/result_ib')
@@ -293,7 +330,8 @@ def result_ib():
     applicants = db.session.query(List, Applications, Programs). \
         join(Applications, List.id == Applications.applicants_id). \
         join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИБ').group_by(List.id).all()
+        filter(Programs.name == 'ИБ'). \
+        order_by(List.summ.desc()).all()
 
     count = len(applicants)
     consent_count = 0
@@ -311,6 +349,7 @@ def result_ib():
                 enrolled_count += 1
         else:
             consent = 'Нет'
+
         data.append({
             'id': item.id,
             'Математика': item.maths,
@@ -323,10 +362,13 @@ def result_ib():
         })
 
     df = pd.DataFrame(data)
-
     html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+
+    return render_template('result_ib.html',
+                           table=html_table,
+                           count=count,
+                           consent_count=consent_count,
+                           enrolled_count=enrolled_count)
 
 
 @app.route('/logout')
@@ -346,4 +388,13 @@ if __name__ == '__main__':
             )
             db.session.add(admin)
             db.session.commit()
+
+        programs_to_create = ['ПМ', 'ИВТ', 'ИТСС', 'ИБ']
+        for program_name in programs_to_create:
+            if not db.session.query(Programs).filter_by(name=program_name).first():
+                program = Programs(name=program_name)
+                db.session.add(program)
+
+        db.session.commit()
+
         app.run(host='127.0.0.1', port=5000, debug=True)
