@@ -26,9 +26,9 @@
         </div>
         <div>
             {% if current_user.is_authenticated %}
-                <li class="left"><form method="POST" action="/upload_first" enctype="multipart/form-data">
+                <li class="left"><form method="POST" action="/upload" enctype="multipart/form-data">
     <input type="file" name="file">
-    <input type="submit" value="Загрузить 01.08">
+    <input type="submit" value="Загрузить список">
                 </form></li>
             {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
@@ -45,7 +45,6 @@
 <div class="return">
     <a href="{{ url_for('home') }}">Назад</a>
 </div>
-
     <div class="aboveTable">
         <div class="filters">
         <div class="filter-group">
@@ -73,6 +72,11 @@
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
     <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
     <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
+            {% if passing_score == 0 %}
+                <h2 class="summary">НЕДОБОР </h2>
+            {% else %}
+                <h2 class="summary">Проходной балл: {{ passing_score }} </h2>
+            {% endif %}
         </div>
 
     </div>
