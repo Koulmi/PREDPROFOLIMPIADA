@@ -51,17 +51,42 @@ def create_student(student_id, programs, day):
     random.shuffle(priorities)
     priorities += [''] * (4 - len(priorities))
 
-    if day == '04.08':
-        consent_prob = 0.8
-    elif day == '01.08':
+    if day == '01.08':
         consent_prob = 0.1
+        maths = random.randint(40, 100)
+        rus = random.randint(40, 100)
+        phys_it = random.randint(41, 100)
+        ind = random.randint(0, 10)
+    elif day == '02.08':
+        consent_prob = 0.4
+        if 'ИБ' in priorities or 'ИТСС' in priorities:
+            maths = random.randint(50, 100)
+            rus = random.randint(50, 100)
+            phys_it = random.randint(51, 100)
+            ind = random.randint(5, 10)
+        else:
+            maths = random.randint(40, 90)
+            rus = random.randint(40, 90)
+            phys_it = random.randint(41, 90)
+            ind = random.randint(0, 5)
+    elif day == '03.08':
+        consent_prob = 0.4
+        if 'ИБ' in priorities or 'ИТСС' in priorities:
+            maths = random.randint(40, 90)
+            rus = random.randint(40, 90)
+            phys_it = random.randint(41, 90)
+            ind = random.randint(0, 5)
+        else:
+            maths = random.randint(50, 100)
+            rus = random.randint(50, 100)
+            phys_it = random.randint(51, 100)
+            ind = random.randint(5, 10)
     else:
-        consent_prob = 0.3
-
-    maths = random.randint(40, 100)
-    rus = random.randint(40, 100)
-    phys_it = random.randint(41, 100)
-    ind = random.randint(0, 10)
+        consent_prob = 0.4
+        maths = random.randint(40, 100)
+        rus = random.randint(40, 100)
+        phys_it = random.randint(41, 100)
+        ind = random.randint(0, 10)
 
     return {
         'id': student_id,
