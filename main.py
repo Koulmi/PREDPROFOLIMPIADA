@@ -63,8 +63,8 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/upload_first', methods=['POST'])
-def upload_first():
+@app.route('/upload', methods=['POST'])
+def upload():
     if 'file' not in request.files:
         flash("Файла нет в запросе")
         return redirect(url_for('home'))
