@@ -186,6 +186,9 @@ def result_pm():
     consent_count = 0
     enrolled_count = 0
 
+    enrolled_scores = []
+    passing_score = 0
+
     if not applicants:
         return render_template('result.html')
 
@@ -196,6 +199,7 @@ def result_pm():
             consent_count += 1
             if applic.is_enrolled:
                 enrolled_count += 1
+                enrolled_scores.append(item.summ)
         else:
             consent = 'Нет'
         data.append({
@@ -209,11 +213,14 @@ def result_pm():
             'Приоритет': applic.priority
         })
 
+    if enrolled_count == 40:
+        passing_score = min(enrolled_scores[:40])
+
     df = pd.DataFrame(data)
 
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_pm.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count, passing_score=passing_score)
 
 
 @app.route('/result_ivt')
@@ -229,6 +236,9 @@ def result_ivt():
     consent_count = 0
     enrolled_count = 0
 
+    enrolled_scores = []
+    passing_score = 0
+
     if not applicants:
         return render_template('result.html')
 
@@ -239,6 +249,7 @@ def result_ivt():
             consent_count += 1
             if applic.is_enrolled:
                 enrolled_count += 1
+                enrolled_scores.append(item.summ)
         else:
             consent = 'Нет'
         data.append({
@@ -252,14 +263,15 @@ def result_ivt():
             'Приоритет': applic.priority
         })
 
-    df = pd.DataFrame(data)
+    if enrolled_count >= 50:
+        passing_score = min(enrolled_scores[:50])
 
-    if not df.empty:
-        df = df.sort_values(by=['Согласие', 'Сумма'], ascending=[True, False])
+
+    df = pd.DataFrame(data)
 
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_ivt.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count, passing_score=passing_score)
 
 
 @app.route('/result_itss')
@@ -275,6 +287,9 @@ def result_itss():
     consent_count = 0
     enrolled_count = 0
 
+    enrolled_scores = []
+    passing_score = 0
+
     if not applicants:
         return render_template('result.html')
 
@@ -285,6 +300,7 @@ def result_itss():
             consent_count += 1
             if applic.is_enrolled:
                 enrolled_count += 1
+                enrolled_scores.append(item.summ)
         else:
             consent = 'Нет'
         data.append({
@@ -298,11 +314,14 @@ def result_itss():
             'Приоритет': applic.priority
         })
 
+    if enrolled_count == 30:
+        passing_score = min(enrolled_scores[:30])
+
     df = pd.DataFrame(data)
 
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_itss.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count, passing_score=passing_score)
 
 
 @app.route('/result_ib')
@@ -318,6 +337,9 @@ def result_ib():
     consent_count = 0
     enrolled_count = 0
 
+    enrolled_scores = []
+    passing_score = 0
+
     if not applicants:
         return render_template('result.html')
 
@@ -328,6 +350,7 @@ def result_ib():
             consent_count += 1
             if applic.is_enrolled:
                 enrolled_count += 1
+                enrolled_scores.append(item.summ)
         else:
             consent = 'Нет'
         data.append({
@@ -341,11 +364,14 @@ def result_ib():
             'Приоритет': applic.priority
         })
 
+    if enrolled_count == 20:
+        passing_score = min(enrolled_scores[:20])
+
     df = pd.DataFrame(data)
 
     html_table = df.to_html(classes='table table-striped', index=False)
     return render_template('result_ib.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count)
+                           consent_count=consent_count, enrolled_count=enrolled_count, passing_score=passing_score)
 
 
 @app.route('/logout')
