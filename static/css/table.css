@@ -21,12 +21,13 @@ ul.top {
     display: inline-block;
 }
 
-li.left {
+li.selected {
     float: left;
+    background-color: #930000;
 }
 
-li.right {
-    float: right;
+li.left {
+    float: left;
 }
 
 ul.top li a {
