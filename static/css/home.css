@@ -21,12 +21,13 @@ ul {
     display: inline-block;
 }
 
-li.left {
+li.selected {
     float: left;
+    background-color: #930000;
 }
 
-li.right {
-    float: right;
+li.left {
+    float: left;
 }
 
 ul li a {
@@ -168,4 +169,5 @@ div.topBar > div:last-child > li {
     border-radius: 5px;
     font-weight: bold;
 }
+
 
