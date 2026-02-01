@@ -95,7 +95,7 @@ def generate_student_details(day, priorities):
             ind = random.randint(5, 8)
         else:
             maths = random.randint(60, 80)
-            rus = random.randint(660, 80)
+            rus = random.randint(60, 80)
             phys_it = random.randint(60, 80)
             ind = random.randint(0, 6)
         consent = random.random() < 0.8
@@ -225,3 +225,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
