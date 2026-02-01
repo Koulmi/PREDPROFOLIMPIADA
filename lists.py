@@ -1,6 +1,6 @@
 import pandas as pd
 import random
-import os
+from collections import defaultdict
 
 day_configs = {
     '01.08': {
@@ -48,57 +48,58 @@ day_configs = {
 
 def generate_student_details(day, priorities):
     if day == '01.08':
-        consent = 0.1
+        consent = random.random() < 0.1
         maths = random.randint(40, 100)
         rus = random.randint(40, 100)
         phys_it = random.randint(41, 100)
         ind = random.randint(0, 10)
     elif day == '02.08':
-        consent = 0.4
+        consent = random.random() < 0.4
         if 'ИБ' in priorities or 'ИТСС' in priorities:
-            maths = random.randint(50, 100)
-            rus = random.randint(50, 100)
-            phys_it = random.randint(51, 100)
+            maths = random.randint(52, 100)
+            rus = random.randint(52, 100)
+            phys_it = random.randint(52, 100)
             ind = random.randint(5, 10)
         else:
-            maths = random.randint(40, 90)
-            rus = random.randint(40, 90)
-            phys_it = random.randint(41, 90)
+            maths = random.randint(40, 85)
+            rus = random.randint(40, 85)
+            phys_it = random.randint(41, 85)
             ind = random.randint(0, 5)
     elif day == '03.08':
-        consent = 0.4
+        consent = random.random() < 0.4
         if 'ИБ' in priorities or 'ИТСС' in priorities:
-            maths = random.randint(40, 90)
-            rus = random.randint(40, 90)
-            phys_it = random.randint(41, 90)
+            maths = random.randint(40, 80)
+            rus = random.randint(40, 80)
+            phys_it = random.randint(41, 80)
             ind = random.randint(0, 5)
         else:
-            maths = random.randint(50, 100)
-            rus = random.randint(50, 100)
-            phys_it = random.randint(51, 100)
+            maths = random.randint(55, 100)
+            rus = random.randint(55, 100)
+            phys_it = random.randint(55, 100)
             ind = random.randint(5, 10)
     else:
-        if 'ПМ' in priorities:
-            maths  = random.randint(85, 100)
-            rus = random.randint(85, 100)
-            phys_it = random.randint(85, 100)
+        if 'ПМ' in priorities and 'ИТСС' not in priorities:
+            maths = random.randint(87, 100)
+            rus = random.randint(87, 100)
+            phys_it = random.randint(88, 100)
             ind = random.randint(7, 10)
-        elif 'ИБ' in priorities:
-            maths = random.randint(75, 95)
-            rus = random.randint(75, 95)
-            phys_it = random.randint(75, 95)
+        elif 'ИТСС' in priorities and 'ПМ' not in priorities:
+            maths = random.randint(45, 60)
+            rus = random.randint(45, 60)
+            phys_it = random.randint(45, 60)
+            ind = random.randint(0, 3)
+        elif 'ИБ' in priorities and 'ПМ' in priorities and 'ИТСС' not in priorities:
+            maths = random.randint(77, 85)
+            rus = random.randint(77, 85)
+            phys_it = random.randint(78, 85)
             ind = random.randint(6, 9)
-        elif 'ИВТ' in priorities:
-            maths = random.randint(65, 85)
-            rus = random.randint(65, 85)
-            phys_it = random.randint(65, 85)
-            ind = random.randint(5, 8)
         else:
-            maths = random.randint(60, 80)
-            rus = random.randint(60, 80)
-            phys_it = random.randint(60, 80)
-            ind = random.randint(0, 6)
-        consent = random.random() < 0.8
+            maths = random.randint(70, 82)
+            rus = random.randint(70, 82)
+            phys_it = random.randint(71, 82)
+            ind = random.randint(4, 7)
+
+        consent = random.random() < 0.6
 
 
     return maths, rus, phys_it, ind, consent
@@ -110,7 +111,6 @@ def get_exclusive_counts(config):
         targets[(prog,)] = count
 
     sorted_groups = sorted(targets.keys(), key=len, reverse=True)
-
     exclusive_counts = {}
 
     for group in sorted_groups:
@@ -119,10 +119,8 @@ def get_exclusive_counts(config):
         for super_group, count in exclusive_counts.items():
             if set(group).issubset(set(super_group)):
                 already_covered += count
-
         pure_needed = max(0, total_needed - already_covered)
         exclusive_counts[group] = pure_needed
-
     return exclusive_counts
 
 
@@ -138,81 +136,75 @@ def main():
             current_students = random.sample(current_students, keep_count)
 
         for s in current_students:
-            if random.random() < 0.5:
-                if random.random() < 0.2: s['Согласие'] = not s['Согласие']
+            if random.random() < 0.4:
                 prio = [s.get(f'Приоритет{k}') for k in range(1, 5) if s.get(f'Приоритет{k}')]
-                math, rus, phys_it, ind, consent = generate_student_details(day, prio)
-                s.update({'Математика': math, 'Русский': rus, 'Физика/Информатика': phys_it,
-                          'Индивидуальные достижения': ind, 'Сумма': math + rus + phys_it + ind})
-
+                maths, rus, phys_it, ind, _ = generate_student_details(day, prio)
+                s.update({'Математика': maths, 'Русский': rus, 'Физика/Информатика': phys_it,
+                          'Индивидуальные достижения': ind, 'Сумма': maths + rus + phys_it + ind})
+                if random.random() < 0.1: s['Согласие'] = not s['Согласие']
 
         num_existing = len(current_students)
         num_new = int(max(num_existing * 0.15, 60))
-
         for _ in range(num_new):
             current_students.append({
-                'id': next_id,
-                'Приоритет1': None,
-                'Приоритет2': None,
-                'Приоритет3': None,
-                'Приоритет4': None,
-                'Математика': 0,
-                'Русский': 0,
-                'Физика/Информатика': 0,
-                'Индивидуальные достижения': 0,
-                'Сумма': 0,
-                'Согласие': False
+                'id': next_id, 'Сумма': 0, 'Согласие': False,
+                'Приоритет1': None, 'Приоритет2': None, 'Приоритет3': None, 'Приоритет4': None
             })
             next_id += 1
 
         exclusive_targets = get_exclusive_counts(day_configs[day])
 
-        student_idx = 0
-        total_students_needed = sum(exclusive_targets.values())
+        current_groups = defaultdict(list)
+        pool_for_reassignment = []
 
-        while len(current_students) < total_students_needed:
-            current_students.append({
-                'id': next_id,
-                'Приоритет1': None,
-                'Приоритет2': None,
-                'Приоритет3': None,
-                'Приоритет4': None,
-                'Математика': 0,
-                'Русский': 0,
-                'Физика/Информатика': 0,
-                'Индивидуальные достижения': 0,
-                'Сумма': 0,
-                'Согласие': False
-            })
-            next_id += 1
+        for s in current_students:
+            if s['Сумма'] == 0:
+                pool_for_reassignment.append(s)
+            else:
+                prio = tuple(sorted([s[f'Приоритет{k}'] for k in range(1, 5) if s[f'Приоритет{k}']]))
+                if prio in [tuple(sorted(k)) for k in exclusive_targets.keys()]:
+                    current_groups[prio].append(s)
+                else:
+                    pool_for_reassignment.append(s)
 
-        random.shuffle(current_students)
+        final_roster = []
 
-        for group, count in exclusive_targets.items():
-            for _ in range(count):
-                if student_idx >= len(current_students):
-                    break
+        for target_group_tuple, target_count in exclusive_targets.items():
+            group_key = tuple(sorted(target_group_tuple))
 
-                s = current_students[student_idx]
-                prio_list = list(group)
+            existing_candidates = current_groups.get(group_key, [])
+
+            if len(existing_candidates) <= target_count:
+                final_roster.extend(existing_candidates)
+                needed = target_count - len(existing_candidates)
+            else:
+                keep = existing_candidates[:target_count]
+                excess = existing_candidates[target_count:]
+                final_roster.extend(keep)
+                pool_for_reassignment.extend(excess)
+                needed = 0
+
+            for _ in range(needed):
+                if not pool_for_reassignment:
+                    s = {'id': next_id, 'Сумма': 0}
+                    next_id += 1
+                else:
+                    s = pool_for_reassignment.pop()
+
+                prio_list = list(target_group_tuple)
                 random.shuffle(prio_list)
                 prio_list += [None] * (4 - len(prio_list))
 
                 for k in range(4):
                     s[f'Приоритет{k + 1}'] = prio_list[k]
+                maths, rus, phys_it, ind, consent = generate_student_details(day, target_group_tuple)
+                s.update({'Математика': maths, 'Русский': rus, 'Физика/Информатика': phys_it,
+                          'Индивидуальные достижения': ind, 'Сумма': maths + rus + phys_it + ind, 'Согласие': consent})
 
-                if s['Сумма'] == 0:
-                    math, rus, phys_it, ind, consent = generate_student_details(day, group)
-                    s.update({'Математика': math, 'Русский': rus, 'Физика/Информатика': phys_it,
-                              'Индивидуальные достижения': ind, 'Сумма': math + rus + phys_it + ind, 'Согласие': consent})
-                else:
-                    _, _, _, _, consent = generate_student_details(day, group)
-                    s['Согласие'] = consent
+                final_roster.append(s)
 
-                student_idx += 1
-
-        current_students = current_students[:total_students_needed]
-        df = pd.DataFrame(current_students)
+        current_students = final_roster
+        df = pd.DataFrame(final_roster)
         df.fillna(value='', inplace=True)
 
         cols = ['id', 'Математика', 'Русский', 'Физика/Информатика', 'Индивидуальные достижения', 'Сумма', 'Согласие',
@@ -225,4 +217,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
