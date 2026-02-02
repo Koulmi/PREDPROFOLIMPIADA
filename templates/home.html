@@ -43,11 +43,55 @@
             {% endif %}
         </div>
     </div>
-
-
-
+    
+<div class="mainButtons">
+            <menu>
+                <form>
+                    <label>01.08</label>
+                    <select onchange="if (this.value) window.location.href = this.value">
+                        <option value="">Выберите ОП:</option>
+                        <option value="{{ url_for('result_pm') }}">ПМ</option>
+                        <option value="{{ url_for('result_ivt') }}">ИВТ</option>
+                        <option value="{{ url_for('result_itss') }}">ИТСС</option>
+                        <option value="{{ url_for('result_ib') }}">ИБ</option>
+                    </select>
+                </form>
+                <form>
+                    <label>02.08</label>
+                    <select onchange="if (this.value) window.location.href = this.value">
+                        <option value="">Выберите ОП:</option>
+                        <option value="{{ url_for('result_pm') }}">ПМ</option>
+                        <option value="{{ url_for('result_ivt') }}">ИВТ</option>
+                        <option value="{{ url_for('result_itss') }}">ИТСС</option>
+                        <option value="{{ url_for('result_ib') }}">ИБ</option>
+                    </select>
+                </form>
+                <form>
+                    <label>03.08</label>
+                    <select onchange="if (this.value) window.location.href = this.value">
+                        <option value="">Выберите ОП:</option>
+                        <option value="{{ url_for('result_pm') }}">ПМ</option>
+                        <option value="{{ url_for('result_ivt') }}">ИВТ</option>
+                        <option value="{{ url_for('result_itss') }}">ИТСС</option>
+                        <option value="{{ url_for('result_ib') }}">ИБ</option>
+                    </select>
+                </form>
+                <form>
+                    <label>04.08</label>
+                    <select onchange="if (this.value) window.location.href = this.value">
+                        <option value="">Выберите ОП:</option>
+                        <option value="{{ url_for('result_pm') }}">ПМ</option>
+                        <option value="{{ url_for('result_ivt') }}">ИВТ</option>
+                        <option value="{{ url_for('result_itss') }}">ИТСС</option>
+                        <option value="{{ url_for('result_ib') }}">ИБ</option>
+                    </select>
+                </form>
+            </menu>
+        </div>
+    
 </body>
 </html>
+
 
 
 
