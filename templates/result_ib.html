@@ -12,7 +12,7 @@
     <div class="topBar">
         <div class="centerTopBar">
         <ul class="top">
-        <li class="left"><a href="#home">Главная</a></li>
+        <li class="left"><a href="{{ url_for('home') }}">Главная</a></li>
         <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
@@ -219,5 +219,6 @@ function resetFilters() {
     </script>
 </body>
 </html>
+
 
 
