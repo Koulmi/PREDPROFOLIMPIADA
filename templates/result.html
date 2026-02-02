@@ -2,12 +2,13 @@
 <html>
 <head>
     <title>Результат загрузки</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/table.css">
 </head>
 <body>
+    <div class="return_2">
     <a href="{{ url_for('home') }}">Назад</a>
-    <div class="container mt-4">
-        <h1>Загруженная таблица</h1>
-        {{ table | safe }}
     </div>
+        <h1 class="center">Загруженная таблица</h1>
+        {{ table | safe }}
 </body>
 </html>
