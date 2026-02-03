@@ -92,7 +92,7 @@ def upload():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        if filename.endswith(('.xlsx')):
+        if filename.endswith('.xlsx'):
             df = pd.read_excel(file_path)
         else:
             flash("Неподдерживаемый формат файла")
@@ -518,4 +518,5 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
+
 
