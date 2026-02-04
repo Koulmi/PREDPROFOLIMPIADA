@@ -14,6 +14,7 @@
         <div class="centerTopBar">
         <ul>
         <li class="selected"><a href="{{ url_for('home') }}">Главная</a></li>
+        <li class="left"><a href="{{ url_for('result') }}">Полный список</a></li>
         <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
@@ -53,7 +54,8 @@
                 <form>
                     <label>01.08</label>
                     <select onchange="if (this.value) window.location.href = this.value">
-                        <option value="">Выберите ОП:</option>
+                        <option value="">Выберите список:</option>
+                        <option value="{{ url_for('set_day', day='01.08', redirect=url_for('result')) }}">Полный список</option>
                         <option value="{{ url_for('set_day', day='01.08', redirect=url_for('result_pm')) }}">ПМ</option>
                         <option value="{{ url_for('set_day', day='01.08', redirect=url_for('result_ivt')) }}">ИВТ</option>
                         <option value="{{ url_for('set_day', day='01.08', redirect=url_for('result_itss')) }}">ИТСС</option>
@@ -63,7 +65,8 @@
                 <form>
                     <label>02.08</label>
                     <select onchange="if (this.value) window.location.href = this.value">
-                        <option value="">Выберите ОП:</option>
+                        <option value="">Выберите список:</option>
+                        <option value="{{ url_for('set_day', day='02.08', redirect=url_for('result')) }}">Полный список</option>
                         <option value="{{ url_for('set_day', day='02.08', redirect=url_for('result_pm')) }}">ПМ</option>
                         <option value="{{ url_for('set_day', day='02.08', redirect=url_for('result_ivt')) }}">ИВТ</option>
                         <option value="{{ url_for('set_day', day='02.08', redirect=url_for('result_itss')) }}">ИТСС</option>
@@ -73,7 +76,8 @@
                 <form>
                     <label>03.08</label>
                     <select onchange="if (this.value) window.location.href = this.value">
-                        <option value="">Выберите ОП:</option>
+                        <option value="">Выберите список:</option>
+                        <option value="{{ url_for('set_day', day='03.08', redirect=url_for('result')) }}">Полный список</option>
                         <option value="{{ url_for('set_day', day='03.08', redirect=url_for('result_pm')) }}">ПМ</option>
                         <option value="{{ url_for('set_day', day='03.08', redirect=url_for('result_ivt')) }}">ИВТ</option>
                         <option value="{{ url_for('set_day', day='03.08', redirect=url_for('result_itss')) }}">ИТСС</option>
@@ -83,7 +87,8 @@
                 <form>
                     <label>04.08</label>
                     <select onchange="if (this.value) window.location.href = this.value">
-                        <option value="">Выберите ОП:</option>
+                        <option value="">Выберите список:</option>
+                        <option value="{{ url_for('set_day', day='04.08', redirect=url_for('result')) }}">Полный список</option>
                         <option value="{{ url_for('set_day', day='04.08', redirect=url_for('result_pm')) }}">ПМ</option>
                         <option value="{{ url_for('set_day', day='04.08', redirect=url_for('result_ivt')) }}">ИВТ</option>
                         <option value="{{ url_for('set_day', day='04.08', redirect=url_for('result_itss')) }}">ИТСС</option>

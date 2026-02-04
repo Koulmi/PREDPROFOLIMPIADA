@@ -13,11 +13,11 @@
         <div class="centerTopBar">
         <ul class="top">
         <li class="left"><a href="{{ url_for('home') }}">Главная</a></li>
-        <li class="left"><a href="{{ url_for('result') }}">Полный список</a></li>
+        <li class="selected"><a href="{{ url_for('result') }}">Полный список</a></li>
         <li class="left"><a href="{{ url_for('result_pm') }}">ПМ</a></li>
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
-        <li class="selected"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
+        <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
             {% if current_user.is_authenticated %}
                     <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
                 {% else %}
@@ -71,13 +71,7 @@
     </div>
         <div>
     <h2 class="summary">Всего абитуриентов: {{ count }}</h2>
-    <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}/20</h2>
-    <h2 class="summary">Зачисленные абитуриенты: {{ enrolled_count }}/20</h2>
-            {% if passing_score == 0 %}
-                <h2 class="summary">НЕДОБОР </h2>
-            {% else %}
-                <h2 class="summary">Проходной балл: {{ passing_score }} </h2>
-            {% endif %}
+    <h2 class="summary">Абитуриенты с согласиями: {{ consent_count }}</h2>
         </div>
 
     </div>

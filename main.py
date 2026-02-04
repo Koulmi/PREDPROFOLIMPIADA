@@ -212,6 +212,44 @@ def load_data_from_file(program_name):
     return program_df[target_columns]
 
 
+@app.route('/result')
+def result():
+    current_day = session.get('current_day', '01.08')
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
+
+    if os.path.exists(file_path):
+        df = pd.read_excel(file_path)
+        df.fillna('', inplace=True)
+        if 'Согласие' in df.columns:
+            df['Согласие'] = df['Согласие'].apply(lambda x: 'Есть' if x else 'Нет')
+
+        count = len(df)
+        consent_count = len(df[df['Согласие'] == 'Есть']) if 'Согласие' in df.columns else 0
+        enrolled_count = 0
+        passing_score = 0
+        cols = ['id', 'Математика', 'Русский', 'Физика/Информатика',
+                'Индивидуальные достижения', 'Сумма', 'Согласие',
+                'Приоритет1', 'Приоритет2', 'Приоритет3', 'Приоритет4']
+
+        cols = [c for c in cols if c in df.columns]
+        df = df[cols]
+
+        html_table = df.to_html(classes='table table-striped', index=False)
+
+        return render_template('all.html',
+                               table=html_table,
+                               count=count,
+                               consent_count=consent_count,
+                               enrolled_count=enrolled_count,
+                               passing_score=passing_score,
+                               current_day=current_day)
+
+    else:
+        return render_template('all.html', table="", count=0,
+                               consent_count=0, enrolled_count=0,
+                               passing_score=0, current_day=current_day)
+
+
 @app.route('/result_pm')
 def result_pm():
     run_distribution()
@@ -518,5 +556,3 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
-
-
