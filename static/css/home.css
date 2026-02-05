@@ -67,7 +67,7 @@ form {
     display: flex;
     justify-content: center;
     gap: 10px;
-    padding: 15px;
+    padding-bottom: 10px;
     width: fit-content;
 }
 
@@ -169,5 +169,6 @@ div.topBar > div:last-child > li {
     border-radius: 5px;
     font-weight: bold;
 }
+
 
 
