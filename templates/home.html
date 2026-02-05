@@ -20,7 +20,7 @@
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
             {% if current_user.is_authenticated %}
-                    <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
+                    <li class="left"><a href="{{ url_for('logout') }}">Выйти</a></li>
                 {% else %}
                     <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
                 {% endif %}
@@ -102,3 +102,4 @@
 
 </body>
 </html>
+
