@@ -228,7 +228,7 @@ form {
 
 input[type="file"] {
     padding: 10px 15px;
-    background-color: #FFF8E1;
+    background-color: #dcdde3;
     border: none;
     border-radius: 5px;
     color: #333;
@@ -237,12 +237,12 @@ input[type="file"] {
 }
 
 input[type="file"]:hover {
-    background-color: #E8D7A9;
+    background-color: #d0d1d9;
 }
 
 input[type="submit"] {
     padding: 10px 20px;
-    background-color: #FFF8E1;
+    background-color: #dcdde3;
     border: none;
     border-radius: 5px;
     color: #333;
@@ -252,10 +252,9 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background-color: #E8D7A9;
+    background-color: #d0d1d9;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
-
 
 li.logout-btn {
     float: right !important;
