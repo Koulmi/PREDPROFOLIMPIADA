@@ -19,7 +19,7 @@
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="selected"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
             {% if current_user.is_authenticated %}
-                    <li class="left"><a href="{{ url_for('logout') }}">Выйти</a></li>
+                    <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
                 {% else %}
                     <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
                 {% endif %}
@@ -46,6 +46,11 @@
 <div class="return">
     <a href="{{ url_for('home') }}">Назад</a>
 </div>
+<div class="current-day-info">
+    <h3>День: {{ current_day }}</h3>
+</div>
+    {% if count > 0 %}
+
     <div class="aboveTable">
         <div class="filters">
         <div class="filter-group">
@@ -81,17 +86,16 @@
         </div>
 
     </div>
-<div class="current-day-info">
-    <h3>День: {{ current_day }}</h3>
-</div>
+
 <h1 class="center">Загруженная таблица</h1>
     <div class="table">
         {{ table | safe }}
     </div>
+
 <script>
        let originalRows = null;
 let currentConsentFilter = 'all';
-let currentSortDirection = null;
+let currentSortDirection = 'desc';
 
 document.addEventListener('DOMContentLoaded', function() {
     const table = document.querySelector('table');
@@ -216,13 +220,15 @@ function updateTableHeader() {
 function resetFilters() {
     document.getElementById('consentFilter').value = 'all';
     currentConsentFilter = 'all';
-    currentSortDirection = null;
+    currentSortDirection = 'desc';
 
     applyFilters();
 }
     </script>
+{% else %}
+<h1 class="noData">Список ещё не загружен</h1>
+{% endif %}
 </body>
 </html>
-
 
 
