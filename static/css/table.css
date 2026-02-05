@@ -323,3 +323,13 @@ div.topBar > div:last-child > li {
     border-radius: 5px;
     font-weight: bold;
 }
+
+div.current-day-info {
+    text-align: center;
+    font-size: 25px;
+}
+
+h1.noData {
+    text-align: center;
+    font-size: 40px;
+}
