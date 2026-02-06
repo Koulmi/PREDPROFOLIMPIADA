@@ -67,26 +67,36 @@ def generate_student_details(day, priorities):
             ind = random.randint(0, 5)
     elif day == '03.08':
         consent = random.random() < 0.4
-        if 'ИБ' in priorities or 'ИТСС' in priorities:
-            maths = random.randint(40, 80)
-            rus = random.randint(40, 80)
-            phys_it = random.randint(41, 80)
+        if 'ИТСС' in priorities:
+            maths = random.randint(40, 55)
+            rus = random.randint(40, 55)
+            phys_it = random.randint(41, 55)
             ind = random.randint(0, 5)
+        elif 'ИБ' in priorities:
+            maths = random.randint(45, 70)
+            rus = random.randint(45, 70)
+            phys_it = random.randint(46, 70)
+            ind = random.randint(0, 5)
+        elif 'ПМ' in priorities:
+            maths = random.randint(68, 100)
+            rus = random.randint(68, 100)
+            phys_it = random.randint(68, 100)
+            ind = random.randint(6, 10)
         else:
-            maths = random.randint(55, 100)
-            rus = random.randint(55, 100)
-            phys_it = random.randint(55, 100)
-            ind = random.randint(5, 10)
+            maths = random.randint(55, 90)
+            rus = random.randint(55, 90)
+            phys_it = random.randint(55, 90)
+            ind = random.randint(6, 10)
     else:
-        if 'ПМ' in priorities and 'ИТСС' not in priorities:
-            maths = random.randint(87, 100)
-            rus = random.randint(87, 100)
-            phys_it = random.randint(88, 100)
-            ind = random.randint(7, 10)
-        elif 'ИТСС' in priorities and 'ПМ' not in priorities:
-            maths = random.randint(45, 60)
-            rus = random.randint(45, 60)
-            phys_it = random.randint(45, 60)
+        if 'ПМ' in priorities and len(priorities) == 1:
+            maths = random.randint(99, 100)
+            rus = random.randint(99, 100)
+            phys_it = random.randint(99, 100)
+            ind = random.randint(9, 10)
+        elif 'ИТСС' in priorities and len(priorities) == 1:
+            maths = random.randint(48, 54)
+            rus = random.randint(48, 54)
+            phys_it = random.randint(48, 54)
             ind = random.randint(0, 3)
         elif 'ИБ' in priorities and 'ПМ' in priorities and 'ИТСС' not in priorities:
             maths = random.randint(77, 85)
@@ -94,9 +104,9 @@ def generate_student_details(day, priorities):
             phys_it = random.randint(78, 85)
             ind = random.randint(6, 9)
         else:
-            maths = random.randint(70, 82)
-            rus = random.randint(70, 82)
-            phys_it = random.randint(71, 82)
+            maths = random.randint(70, 80)
+            rus = random.randint(70, 80)
+            phys_it = random.randint(71, 80)
             ind = random.randint(4, 7)
 
         consent = random.random() < 0.6
@@ -136,7 +146,7 @@ def main():
             current_students = random.sample(current_students, keep_count)
 
         for s in current_students:
-            if random.random() < 0.4:
+            if random.random() < 0.5:
                 prio = [s.get(f'Приоритет{k}') for k in range(1, 5) if s.get(f'Приоритет{k}')]
                 maths, rus, phys_it, ind, _ = generate_student_details(day, prio)
                 s.update({'Математика': maths, 'Русский': rus, 'Физика/Информатика': phys_it,
