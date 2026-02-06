@@ -30,7 +30,7 @@
             {% if current_user.is_authenticated %}
                 <li class="left"><form method="POST" action="/upload" enctype="multipart/form-data">
     <input type="file" name="file">
-    <input type="submit" value="Загрузить">
+    <input type="submit" value="Загрузить список">
                 </form></li>
             {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
@@ -102,5 +102,6 @@
 
 </body>
 </html>
+
 
 
