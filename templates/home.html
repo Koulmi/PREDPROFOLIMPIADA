@@ -26,6 +26,9 @@
                 {% endif %}
         </ul>
         </div>
+        <a href="{{ url_for('generate_report') }}">
+        Сформировать отчет (PDF)
+    </a>
         <div>
             {% if current_user.is_authenticated %}
                 <li class="left"><form method="POST" action="/upload" enctype="multipart/form-data">
@@ -102,6 +105,5 @@
 
 </body>
 </html>
-
 
 
