@@ -10,7 +10,7 @@ div.topImage {
 div.topImage img {
     width: 100%;
     height: 100%;
-    object-fit: fill
+    object-fit: fill;
 }
 
 ul.top {
@@ -25,6 +25,7 @@ ul.top {
 li.selected {
     float: left;
     background-color: #930000;
+    border-radius: 0px 0px 10px 10px;
 }
 
 li.left {
@@ -36,6 +37,7 @@ ul.top li a {
     color: white;
     padding: 14px 16px;
     text-decoration: none;
+    border-radius: 0px 0px 10px 10px;
 }
 
 div.return {
@@ -164,6 +166,10 @@ h1.center {
     text-align: center;
 }
 
+h1.loaded {
+
+}
+
 div.table {
     display: flex;
     justify-content: center;
@@ -257,22 +263,23 @@ input[type="submit"]:hover {
 }
 
 li.logout-btn {
-    float: right !important;
-    margin-right: 20px;
-}
-
-li.logout-btn a {
-    background-color: #FFF8E1;
-    border: none;
-    border-radius: 5px;
-    color: #333 !important;
-    font-weight: bold;
-    margin: 5px 0;
+    float: left;
+    background-color: #a30000;
+    border-radius: 0px 0px 10px 10px;
 }
 
 li.logout-btn a:hover {
-    background-color: #E8D7A9;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    background-color: #990000;
+}
+
+li.login-btn {
+    float: left;
+    background-color: #a30000;
+    border-radius: 0px 0px 10px 10px;
+}
+
+li.login-btn a:hover {
+    background-color: #990000;
 }
 
 .upload-section {
@@ -295,11 +302,6 @@ div.topBar > div:last-child > li {
     max-width: 500px;
     border-radius: 5px;
     font-weight: bold;
-}
-
-li.logout-btn a:hover {
-    background-color: #E8D7A9;
-    border-color: #bf0000;
 }
 
 div.topBar > div:last-child {
