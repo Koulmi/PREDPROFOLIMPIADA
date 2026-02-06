@@ -5,6 +5,9 @@ import pandas as pd
 from data.db_session import global_init, db
 from data.models import (User, pw_secure, List, Applications, Programs)
 from werkzeug.utils import secure_filename
+from flask import send_file
+from datetime import datetime
+from report import generate_pdf_report
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -94,98 +97,47 @@ def upload():
 
         if filename.endswith('.xlsx'):
             df = pd.read_excel(file_path)
-        else:
-            flash("Неподдерживаемый формат файла")
-            return redirect(url_for('home'))
+            existing_programs = db.session.query(Programs).all()
+            existing_names = [p.name for p in existing_programs]
+            for name in BUDGET.keys():
+                if name not in existing_names:
+                    db.session.add(Programs(name=name))
+            db.session.commit()
 
-        existing_programs = db.session.query(Programs).all()
-        existing_names = [p.name for p in existing_programs]
+            all_programs_map = {p.name: p for p in db.session.query(Programs).all()}
+            ids_in_file = df['id'].tolist()
 
-        for name in BUDGET.keys():
-            if name not in existing_names:
-                new_prog = Programs(name=name)
-                db.session.add(new_prog)
-        db.session.commit()
+            db.session.query(Applications).filter(Applications.applicants_id.notin_(ids_in_file)).delete()
+            db.session.query(List).filter(List.id.notin_(ids_in_file)).delete()
+            db.session.commit()
 
-        all_programs_map = {p.name: p for p in db.session.query(Programs).all()}
+            for index, row in df.iterrows():
+                new_item = List(id=row['id'],
+                                maths=row['Математика'],
+                                russian=row['Русский'],
+                                physics_it=row['Физика/Информатика'],
+                                achievements=row['Индивидуальные достижения'],
+                                summ=row['Сумма'],
+                                consent=row['Согласие'])
+                db.session.merge(new_item)
+                db.session.query(Applications).filter_by(applicants_id=row['id']).delete()
 
-        ids_in_file = df['id'].tolist()
-
-        all_apps = db.session.query(Applications).all()
-        for applic in all_apps:
-            if applic.applicants_id not in ids_in_file:
-                db.session.delete(applic)
-
-        all_items = db.session.query(List).all()
-        for item in all_items:
-            if item.id not in ids_in_file:
-                db.session.delete(item)
-
-        db.session.commit()
-
-        for index, row in df.iterrows():
-            new_item = List(id=row['id'],
-                            maths=row['Математика'],
-                            russian=row['Русский'],
-                            physics_it=row['Физика/Информатика'],
-                            achievements=row['Индивидуальные достижения'],
-                            summ=row['Сумма'],
-                            consent=row['Согласие'])
-            db.session.merge(new_item)
-
-            db.session.query(Applications).filter_by(applicants_id=row['id']).delete()
-
-            for i in range(1, 5):
-                column_name = f'Приоритет{i}'
-
-                if column_name in row and pd.notna(row[column_name]):
-                    prog_name = row[column_name]
-                    if prog_name in all_programs_map:
-                        target_prog = all_programs_map[prog_name]
-                        new_priority = Applications(
-                            priority=i,
-                            applicants_id=row['id'],
-                            program_id=target_prog.id
-                        )
-                        db.session.add(new_priority)
-
-        db.session.commit()
-        run_distribution()
+                for i in range(1, 5):
+                    col = f'Приоритет{i}'
+                    if col in row and pd.notna(row[col]):
+                        prog_name = row[col]
+                        if prog_name in all_programs_map:
+                            db.session.add(Applications(priority=i, applicants_id=row['id'],
+                                                        program_id=all_programs_map[prog_name].id))
+            db.session.commit()
 
         html_table = df.to_html(classes='table table-striped')
         return render_template('result.html', table=html_table)
 
+    return redirect(url_for('home'))
+
 
 def run_distribution():
-    db.session.query(Applications).update({Applications.is_enrolled: False})
-    db.session.commit()
-
-    all_programs = db.session.query(Programs).all()
-
-    prog_limits = {}
-    prog_filled = {}
-
-    for prog in all_programs:
-        limit = BUDGET.get(prog.name)
-        prog_limits[prog.id] = limit
-        prog_filled[prog.id] = 0
-
-    candidates = db.session.query(List).filter_by(consent=True).order_by(List.summ.desc(), List.maths.desc()).all()
-
-    for student in candidates:
-        apps = sorted(student.applications, key=lambda x: x.priority)
-
-        for applic in apps:
-            prog_id = applic.program_id
-            if prog_filled[prog_id] < prog_limits[prog_id]:
-                applic.is_enrolled = True
-                prog_filled[prog_id] += 1
-                break
-
-    db.session.commit()
-
-
-def load_data_from_file(program_name):
     current_day = session.get('current_day', '01.08')
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
 
@@ -193,349 +145,135 @@ def load_data_from_file(program_name):
         return None
 
     df = pd.read_excel(file_path)
+
+    cols_to_numeric = ['Сумма', 'Математика', 'Русский', 'Физика/Информатика', 'Индивидуальные достижения']
+    for col in cols_to_numeric:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
     df.fillna('', inplace=True)
 
-    program_df = df[df.apply(lambda row:
-                             program_name in [row[f'Приоритет{i}'] for i in range(1, 5)], axis=1)].copy()
+    if 'Согласие' in df.columns:
+        df['is_consent'] = df['Согласие'].apply(lambda x: True if x == 'Есть' or x is True else False)
+    else:
+        df['is_consent'] = False
 
-    def get_priority_number(row):
+    sort_cols = ['Сумма', 'Математика', 'Русский', 'Физика/Информатика', 'Индивидуальные достижения']
+    existing_sort = [c for c in sort_cols if c in df.columns]
+    ascending = [False] * len(existing_sort)
+
+    candidates = df[df['is_consent'] == True].sort_values(by=existing_sort, ascending=ascending)
+
+    filled = {p: 0 for p in BUDGET}
+    enrolled_map = {}
+
+    for _, row in candidates.iterrows():
         for i in range(1, 5):
-            if row[f'Приоритет{i}'] == program_name:
+            prog = row.get(f'Приоритет{i}')
+            if prog in BUDGET and filled[prog] < BUDGET[prog]:
+                filled[prog] += 1
+                enrolled_map[row['id']] = prog
+                break
+
+    df['Зачислен_на'] = df['id'].map(enrolled_map)
+    df['Согласие'] = df['is_consent'].apply(lambda x: 'Есть' if x else 'Нет')
+    return df
+
+
+def render_program_page(prog_name, template):
+    df = run_distribution()
+    if df is None:
+        return render_template(template)
+
+    condition = (df['Приоритет1'] == prog_name) | \
+                (df['Приоритет2'] == prog_name) | \
+                (df['Приоритет3'] == prog_name) | \
+                (df['Приоритет4'] == prog_name)
+
+    df_prog = df[condition].copy()
+    def get_number(row):
+        for i in range(1, 5):
+            if row[f'Приоритет{i}'] == prog_name:
                 return i
         return '-'
 
-    program_df['Приоритет'] = program_df.apply(get_priority_number, axis=1)
-    program_df['Согласие'] = program_df['Согласие'].apply(lambda x: 'Есть' if x else 'Нет')
-    target_columns = ['id', 'Математика', 'Русский', 'Физика/Информатика',
-                      'Индивидуальные достижения', 'Сумма', 'Согласие', 'Приоритет']
+    df_prog['Приоритет'] = df_prog.apply(get_number, axis=1)
 
-    return program_df[target_columns]
+    enrolled_df = df_prog[df_prog['Зачислен_на'] == prog_name]
 
+    count = len(df_prog)
+    consent_count = len(df_prog[df_prog['Согласие'] == 'Есть'])
+    enrolled_count = len(enrolled_df)
 
-@app.route('/result')
-def result():
-    current_day = session.get('current_day', '01.08')
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
+    passing_score = 0
+    if enrolled_count == BUDGET.get(prog_name, 0):
+        passing_score = enrolled_df['Сумма'].min()
 
-    if os.path.exists(file_path):
-        df = pd.read_excel(file_path)
-        df.fillna('', inplace=True)
-        if 'Согласие' in df.columns:
-            df['Согласие'] = df['Согласие'].apply(lambda x: 'Есть' if x else 'Нет')
+    cols = ['id', 'Математика', 'Русский', 'Физика/Информатика',
+            'Индивидуальные достижения', 'Сумма', 'Согласие', 'Приоритет']
+    final_cols = [c for c in cols if c in df_prog.columns]
 
-        count = len(df)
-        consent_count = len(df[df['Согласие'] == 'Есть']) if 'Согласие' in df.columns else 0
-        enrolled_count = 0
-        passing_score = 0
-        cols = ['id', 'Математика', 'Русский', 'Физика/Информатика',
-                'Индивидуальные достижения', 'Сумма', 'Согласие',
-                'Приоритет1', 'Приоритет2', 'Приоритет3', 'Приоритет4']
+    html = df_prog[final_cols].to_html(classes='table table-striped', index=False)
 
-        cols = [c for c in cols if c in df.columns]
-        df = df[cols]
-
-        html_table = df.to_html(classes='table table-striped', index=False)
-
-        return render_template('all.html',
-                               table=html_table,
-                               count=count,
-                               consent_count=consent_count,
-                               enrolled_count=enrolled_count,
-                               passing_score=passing_score,
-                               current_day=current_day)
-
-    else:
-        return render_template('all.html', table="", count=0,
-                               consent_count=0, enrolled_count=0,
-                               passing_score=0, current_day=current_day)
+    return render_template(template,
+                           table=html,
+                           count=count,
+                           consent_count=consent_count,
+                           enrolled_count=enrolled_count,
+                           passing_score=passing_score,
+                           current_day=session.get('current_day', '01.08'))
 
 
 @app.route('/result_pm')
 def result_pm():
-    run_distribution()
-
-    current_day = session.get('current_day', '01.08')
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
-
-    if os.path.exists(file_path):
-        df = load_data_from_file('ПМ')
-        if df is not None:
-            count = len(df)
-            consent_count = len(df[df['Согласие'] == 'Есть'])
-            enrolled_count = min(consent_count, BUDGET['ПМ'])
-
-            passing_score = 0
-            if enrolled_count == BUDGET['ПМ'] and consent_count >= BUDGET['ПМ']:
-                consent_sorted = df[df['Согласие'] == 'Есть'].sort_values('Сумма', ascending=False)
-                passing_score = consent_sorted.iloc[BUDGET['ПМ'] - 1]['Сумма']
-
-            html_table = df.to_html(classes='table table-striped', index=False)
-            return render_template('result_pm.html', table=html_table, count=count,
-                                   consent_count=consent_count, enrolled_count=enrolled_count,
-                                   passing_score=passing_score, current_day=current_day)
-
-    applicants = db.session.query(List, Applications, Programs). \
-        join(Applications, List.id == Applications.applicants_id). \
-        join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ПМ').group_by(List.id).all()
-
-    count = len(applicants)
-    consent_count = 0
-    enrolled_count = 0
-    enrolled_scores = []
-    passing_score = 0
-
-    if not applicants:
-        return render_template('result_pm.html', table='', count=0,
-                               consent_count=0, enrolled_count=0, passing_score=0,
-                               current_day=current_day)
-
-    data = []
-    for item, applic, prog in applicants:
-        if item.consent:
-            consent = 'Есть'
-            consent_count += 1
-            if applic.is_enrolled:
-                enrolled_count += 1
-                enrolled_scores.append(item.summ)
-        else:
-            consent = 'Нет'
-        data.append({
-            'id': item.id,
-            'Математика': item.maths,
-            'Русский': item.russian,
-            'Физика/Информатика': item.physics_it,
-            'Индивидуальные достижения': item.achievements,
-            'Сумма': item.summ,
-            'Согласие': consent,
-            'Приоритет': applic.priority
-        })
-
-    if enrolled_count == BUDGET['ПМ']:
-        passing_score = min(enrolled_scores[:BUDGET['ПМ']])
-
-    df = pd.DataFrame(data)
-
-    html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_pm.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count,
-                           passing_score=passing_score, current_day=current_day)
+    return render_program_page('ПМ', 'result_pm.html')
 
 
 @app.route('/result_ivt')
 def result_ivt():
-    run_distribution()
-
-    current_day = session.get('current_day', '01.08')
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
-
-    if os.path.exists(file_path):
-        df = load_data_from_file('ИВТ')
-        if df is not None:
-            count = len(df)
-            consent_count = len(df[df['Согласие'] == 'Есть'])
-            enrolled_count = min(consent_count, BUDGET['ИВТ'])
-
-            passing_score = 0
-            if enrolled_count == BUDGET['ИВТ'] and consent_count >= BUDGET['ИВТ']:
-                consent_sorted = df[df['Согласие'] == 'Есть'].sort_values('Сумма', ascending=False)
-                passing_score = consent_sorted.iloc[BUDGET['ИВТ'] - 1]['Сумма']
-
-            html_table = df.to_html(classes='table table-striped', index=False)
-            return render_template('result_ivt.html', table=html_table, count=count,
-                                   consent_count=consent_count, enrolled_count=enrolled_count,
-                                   passing_score=passing_score, current_day=current_day)
-
-    applicants = db.session.query(List, Applications, Programs). \
-        join(Applications, List.id == Applications.applicants_id). \
-        join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИВТ').group_by(List.id).all()
-
-    count = len(applicants)
-    consent_count = 0
-    enrolled_count = 0
-    enrolled_scores = []
-    passing_score = 0
-
-    if not applicants:
-        return render_template('result_ivt.html', table='', count=0,
-                               consent_count=0, enrolled_count=0, passing_score=0,
-                               current_day=current_day)
-
-    data = []
-    for item, applic, prog in applicants:
-        if item.consent:
-            consent = 'Есть'
-            consent_count += 1
-            if applic.is_enrolled:
-                enrolled_count += 1
-                enrolled_scores.append(item.summ)
-        else:
-            consent = 'Нет'
-        data.append({
-            'id': item.id,
-            'Математика': item.maths,
-            'Русский': item.russian,
-            'Физика/Информатика': item.physics_it,
-            'Индивидуальные достижения': item.achievements,
-            'Сумма': item.summ,
-            'Согласие': consent,
-            'Приоритет': applic.priority
-        })
-
-    if enrolled_count >= BUDGET['ИВТ']:
-        passing_score = min(enrolled_scores[:BUDGET['ИВТ']])
-
-    df = pd.DataFrame(data)
-
-    html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ivt.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count,
-                           passing_score=passing_score, current_day=current_day)
+    return render_program_page('ИВТ', 'result_ivt.html')
 
 
 @app.route('/result_itss')
 def result_itss():
-    run_distribution()
-
-    current_day = session.get('current_day', '01.08')
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
-
-    if os.path.exists(file_path):
-        df = load_data_from_file('ИТСС')
-        if df is not None:
-            count = len(df)
-            consent_count = len(df[df['Согласие'] == 'Есть'])
-            enrolled_count = min(consent_count, BUDGET['ИТСС'])
-
-            passing_score = 0
-            if enrolled_count == BUDGET['ИТСС'] and consent_count >= BUDGET['ИТСС']:
-                consent_sorted = df[df['Согласие'] == 'Есть'].sort_values('Сумма', ascending=False)
-                passing_score = consent_sorted.iloc[BUDGET['ИТСС'] - 1]['Сумма']
-
-            html_table = df.to_html(classes='table table-striped', index=False)
-            return render_template('result_itss.html', table=html_table, count=count,
-                                   consent_count=consent_count, enrolled_count=enrolled_count,
-                                   passing_score=passing_score, current_day=current_day)
-
-    applicants = db.session.query(List, Applications, Programs). \
-        join(Applications, List.id == Applications.applicants_id). \
-        join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИТСС').group_by(List.id).all()
-
-    count = len(applicants)
-    consent_count = 0
-    enrolled_count = 0
-    enrolled_scores = []
-    passing_score = 0
-
-    if not applicants:
-        return render_template('result_itss.html', table='', count=0,
-                               consent_count=0, enrolled_count=0, passing_score=0,
-                               current_day=current_day)
-
-    data = []
-    for item, applic, prog in applicants:
-        if item.consent:
-            consent = 'Есть'
-            consent_count += 1
-            if applic.is_enrolled:
-                enrolled_count += 1
-                enrolled_scores.append(item.summ)
-        else:
-            consent = 'Нет'
-        data.append({
-            'id': item.id,
-            'Математика': item.maths,
-            'Русский': item.russian,
-            'Физика/Информатика': item.physics_it,
-            'Индивидуальные достижения': item.achievements,
-            'Сумма': item.summ,
-            'Согласие': consent,
-            'Приоритет': applic.priority
-        })
-
-    if enrolled_count == BUDGET['ИТСС']:
-        passing_score = min(enrolled_scores[:BUDGET['ИТСС']])
-
-    df = pd.DataFrame(data)
-
-    html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_itss.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count,
-                           passing_score=passing_score, current_day=current_day)
+    return render_program_page('ИТСС', 'result_itss.html')
 
 
 @app.route('/result_ib')
 def result_ib():
-    run_distribution()
+    return render_program_page('ИБ', 'result_ib.html')
 
+
+@app.route('/result')
+def result():
+    df = run_distribution()
     current_day = session.get('current_day', '01.08')
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{current_day}.xlsx')
 
-    if os.path.exists(file_path):
-        df = load_data_from_file('ИБ')
-        if df is not None:
-            count = len(df)
-            consent_count = len(df[df['Согласие'] == 'Есть'])
-            enrolled_count = min(consent_count, BUDGET['ИБ'])
+    if df is not None:
+        count = len(df)
+        consent_count = len(df[df['Согласие'] == 'Есть'])
 
-            passing_score = 0
-            if enrolled_count == BUDGET['ИБ'] and consent_count >= BUDGET['ИБ']:
-                consent_sorted = df[df['Согласие'] == 'Есть'].sort_values('Сумма', ascending=False)
-                passing_score = consent_sorted.iloc[BUDGET['ИБ'] - 1]['Сумма']
+        cols = ['id', 'Математика', 'Русский', 'Физика/Информатика',
+                'Индивидуальные достижения', 'Сумма', 'Согласие',
+                'Приоритет1', 'Приоритет2', 'Приоритет3', 'Приоритет4']
+        final_cols = [c for c in cols if c in df.columns]
 
-            html_table = df.to_html(classes='table table-striped', index=False)
-            return render_template('result_ib.html', table=html_table, count=count,
-                                   consent_count=consent_count, enrolled_count=enrolled_count,
-                                   passing_score=passing_score, current_day=current_day)
+        html = df[final_cols].to_html(classes='table table-striped', index=False)
+        return render_template('all.html', table=html, count=count,
+                               consent_count=consent_count, enrolled_count=0,
+                               passing_score=0, current_day=current_day)
+    else:
+        return render_template('all.html', table="", count=0, consent_count=0, enrolled_count=0, passing_score=0)
 
-    applicants = db.session.query(List, Applications, Programs). \
-        join(Applications, List.id == Applications.applicants_id). \
-        join(Programs, Applications.program_id == Programs.id). \
-        filter(Programs.name == 'ИБ').group_by(List.id).all()
 
-    count = len(applicants)
-    consent_count = 0
-    enrolled_count = 0
-    enrolled_scores = []
-    passing_score = 0
+@app.route('/generate_report')
+def generate_report():
+    pdf_buffer = generate_pdf_report(app.config['UPLOAD_FOLDER'], BUDGET)
+    if pdf_buffer is None:
+        flash("Нет данных для формирования отчета", "danger")
+        return redirect(url_for('home'))
 
-    if not applicants:
-        return render_template('result_ib.html', table='', count=0,
-                               consent_count=0, enrolled_count=0, passing_score=0,
-                               current_day=current_day)
-
-    data = []
-    for item, applic, prog in applicants:
-        if item.consent:
-            consent = 'Есть'
-            consent_count += 1
-            if applic.is_enrolled:
-                enrolled_count += 1
-                enrolled_scores.append(item.summ)
-        else:
-            consent = 'Нет'
-        data.append({
-            'id': item.id,
-            'Математика': item.maths,
-            'Русский': item.russian,
-            'Физика/Информатика': item.physics_it,
-            'Индивидуальные достижения': item.achievements,
-            'Сумма': item.summ,
-            'Согласие': consent,
-            'Приоритет': applic.priority
-        })
-
-    if enrolled_count == BUDGET['ИБ']:
-        passing_score = min(enrolled_scores[:BUDGET['ИБ']])
-
-    df = pd.DataFrame(data)
-
-    html_table = df.to_html(classes='table table-striped', index=False)
-    return render_template('result_ib.html', table=html_table, count=count,
-                           consent_count=consent_count, enrolled_count=enrolled_count,
-                           passing_score=passing_score, current_day=current_day)
+    now_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    return send_file(pdf_buffer, as_attachment=True, download_name=f"report_{now_str}.pdf", mimetype='application/pdf')
 
 
 @app.route('/logout')
@@ -549,10 +287,8 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         if not db.session.query(User).filter_by(login=ADMIN_LOGIN).first():
-            admin = User(
-                login=ADMIN_LOGIN,
-                password=pw_secure.encrypt_password('sHjkfd23jHFSas[32')
-            )
+            admin = User(login=ADMIN_LOGIN,
+                         password=pw_secure.encrypt_password('sHjkfd23jHFSas[32'))
             db.session.add(admin)
             db.session.commit()
         app.run(host='127.0.0.1', port=5000, debug=True)
