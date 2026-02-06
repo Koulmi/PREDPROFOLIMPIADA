@@ -21,7 +21,7 @@
             {% if current_user.is_authenticated %}
                     <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
                 {% else %}
-                    <li class="left"><a href="{{ url_for('login') }}">Войти</a></li>
+                    <li class="login-btn"><a href="{{ url_for('login') }}">Войти</a></li>
                 {% endif %}
         </ul>
         </div>
@@ -225,5 +225,6 @@ function resetFilters() {
 {% endif %}
 </body>
 </html>
+
 
 
