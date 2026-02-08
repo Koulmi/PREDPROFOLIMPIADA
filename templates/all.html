@@ -5,12 +5,13 @@
     <link rel="stylesheet" type="text/css" href="/static/css/table.css">
 </head>
 <body>
-<div class="topImage">
-<img src="/static/img/topImage.png">
-    </div>
+<img class="top" src="/static/img/topImage.png">
+
 
     <div class="topBar">
+
         <div class="centerTopBar">
+<p class="topBarTitle">АЙФОН</p>
         <ul class="top">
         <li class="left"><a href="{{ url_for('home') }}">Главная</a></li>
         <li class="selected"><a href="{{ url_for('result') }}">Полный список</a></li>
@@ -18,12 +19,19 @@
         <li class="left"><a href="{{ url_for('result_ivt') }}">ИВТ</a></li>
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
+            </ul>
+            <img class="logo" src="/static/img/logo.jpg">
             {% if current_user.is_authenticated %}
-                    <li class="logout-btn"><a href="{{ url_for('logout') }}">Выйти</a></li>
+            <a href="{{ url_for('generate_report') }}">
+                Сформировать отчет (PDF)
+            </a>
+
+                    <a class="logout-btn" href="{{ url_for('logout') }}">Выйти</a>
                 {% else %}
-                    <li class="login-btn"><a href="{{ url_for('login') }}">Войти</a></li>
+                    <a class="login-btn" href="{{ url_for('login') }}">Войти</a>
                 {% endif %}
-        </ul>
+
+
         </div>
         <div>
             {% if current_user.is_authenticated %}
@@ -49,7 +57,7 @@
 <div class="current-day-info">
     <h3>День: {{ current_day }}</h3>
 </div>
-    {% if count > 0 %}
+    {% if count %}
 
     <div class="aboveTable">
         <div class="filters">
