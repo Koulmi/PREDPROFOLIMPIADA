@@ -3,11 +3,7 @@ body {
     margin: 0px;
 }
 
-div.topImage {
-
-}
-
-div.topImage img {
+img.top {
     width: 100%;
     height: 100%;
     object-fit: fill;
@@ -211,7 +207,7 @@ div.centerTopBar {
     text-align: center;
     font-size: 150%;
     margin: auto;
-    width: 50%;
+    width: 100%;
 }
 
 button.topBar {
@@ -262,23 +258,52 @@ input[type="submit"]:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-li.logout-btn {
-    float: left;
-    background-color: #a30000;
-    border-radius: 0px 0px 10px 10px;
+img.logo {
+    display: inline-block;
+    height: auto;
+    width: 70px;
+    float: right;
 }
 
-li.logout-btn a:hover {
+p.topBarTitle {
+    color: white;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+    float: left;
+    margin-left: 1%;
+    font-family: Arial, sans-serif;
+}
+
+a.logout-btn {
+    display: inline-block;
+    float: right;
+    background-color: #a30000;
+    border-radius: 0px 0px 10px 10px;
+    margin-right: 1%;
+
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+a.logout-btn a:hover {
     background-color: #990000;
 }
 
-li.login-btn {
-    float: left;
+a.login-btn {
+    display: inline-block;
+    float: right;
     background-color: #a30000;
     border-radius: 0px 0px 10px 10px;
+    margin-right: 1%;
+
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
 }
 
-li.login-btn a:hover {
+a.login-btn a:hover {
     background-color: #990000;
 }
 
