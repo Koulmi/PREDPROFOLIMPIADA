@@ -1,7 +1,6 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_session import db
-from datetime import datetime
 
 
 class Password_inkognito:
@@ -56,4 +55,5 @@ class Applications(db.Model):
     is_enrolled = db.Column(db.Boolean, default=False)
 
     programs = db.relationship('Programs', backref='application')
+
 
