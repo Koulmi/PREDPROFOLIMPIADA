@@ -350,8 +350,13 @@ div.topBar > div:last-child > li {
     font-weight: bold;
 }
 
-div.current-day-info {
+div.current-day-info-home {
     margin-left: 5%;
+    font-size: 30px;
+}
+
+div.current-day-info {
+    text-align: center;
     font-size: 30px;
 }
 
@@ -398,3 +403,4 @@ a.report-btn:hover {
     background-color: #d0d1d9;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
+
