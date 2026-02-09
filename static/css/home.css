@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
 body {
     margin: 0px;
 }
@@ -33,6 +34,7 @@ ul li a {
     padding: 14px 16px;
     text-decoration: none;
     border-radius: 0px 0px 10px 10px;
+    font-family: Arial, sans-serif;
 }
 
 
@@ -50,7 +52,33 @@ div.centerTopBar {
     font-size: 150%;
     margin: auto;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box; 
 }
+
+p.topBarTitle {
+    color: white;
+    white-space: nowrap;
+    display: inline-block;
+    margin: 0;
+
+    font-family: 'Rubik Mono One', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 0px #7a0000;
+    transform: skew(-5deg);
+}
+
+img.logo {
+    display: inline-block;
+    height: 50px;
+    width: 150px;
+    object-fit: contain;
+}
+
 
 button.topBar {
     border-style: none;
@@ -99,52 +127,33 @@ input[type="submit"]:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-img.logo {
-    display: inline-block;
-    height: auto;
-    width: 70px;
-    float: right;
-}
-
-p.topBarTitle {
-    color: white;
-    font-weight: bold;
-    white-space: nowrap;
-    display: inline-block;
-    float: left;
-    margin-left: 1%;
-    font-family: Arial, sans-serif;
-}
-
 a.logout-btn {
     display: inline-block;
-    float: right;
     background-color: #a30000;
     border-radius: 0px 0px 10px 10px;
-    margin-right: 1%;
-
     color: white;
     padding: 14px 16px;
     text-decoration: none;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
 }
 
-a.logout-btn a:hover {
+a.logout-btn:hover {
     background-color: #990000;
 }
 
 a.login-btn {
     display: inline-block;
-    float: right;
     background-color: #a30000;
     border-radius: 0px 0px 10px 10px;
-    margin-right: 1%;
-
     color: white;
     padding: 14px 16px;
     text-decoration: none;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
 }
 
-a.login-btn a:hover {
+a.login-btn:hover {
     background-color: #990000;
 }
 
@@ -153,12 +162,6 @@ a.login-btn a:hover {
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
-}
-
-div.topBar > div:last-child > li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
 }
 
 .flash-message {
@@ -181,15 +184,6 @@ div.topBar > div:last-child > li {
     list-style: none;
     margin: 0;
     padding: 0;
-}
-
-.flash-message {
-    text-align: center;
-    padding: 10px;
-    margin: 10px auto;
-    max-width: 500px;
-    border-radius: 5px;
-    font-weight: bold;
 }
 
 div.current-day-info {
@@ -216,5 +210,3 @@ p.homeText {
     font-size: 20px;
     margin: 0% 20% 0% 20%;
 }
-
-

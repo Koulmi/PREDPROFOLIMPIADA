@@ -20,7 +20,7 @@
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
             </ul>
-            <img class="logo" src="/static/img/logo.jpg">
+            <img class="logo" src="/static/img/logo.png">
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('generate_report') }}">
                 Сформировать отчет (PDF)
@@ -236,6 +236,5 @@ function resetFilters() {
 {% endif %}
 </body>
 </html>
-
 
 

@@ -57,12 +57,3 @@ class Applications(db.Model):
 
     programs = db.relationship('Programs', backref='application')
 
-
-class History(db.Model):
-    __tablename__ = 'history'
-
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, default=datetime.now)
-    program_id = db.Column(db.Integer, db.ForeignKey('programs.id'))
-    passing_score = db.Column(db.Integer, default=0)
-    is_shortage = db.Column(db.Boolean, default=False)

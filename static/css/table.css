@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
 
 body {
     margin: 0px;
@@ -34,6 +35,7 @@ ul.top li a {
     padding: 14px 16px;
     text-decoration: none;
     border-radius: 0px 0px 10px 10px;
+    font-family: Arial, sans-serif;
 }
 
 div.return {
@@ -41,7 +43,6 @@ div.return {
     position: absolute;
     border-radius: 30px;
     font-size: 30px;
-
     margin: 0.8% 0% 0% 64%;
     text-align: center;
     width: 6.5%;
@@ -52,7 +53,6 @@ div.return_2 {
     position: absolute;
     border-radius: 30px;
     font-size: 30px;
-
     margin: 0.8% 0% 0% 85%;
     text-align: center;
     width: 6.5%;
@@ -76,7 +76,6 @@ h2.summary {
     background-color: #cfcff9;
     border-radius: 10px;
     font-size: 25px;
-
     margin: auto;
     margin-top: 1%;
     margin-bottom: 1%;
@@ -90,7 +89,6 @@ ul li a:hover {
 }
 
 .tableSort {
-
 }
 
 div.aboveTable {
@@ -121,8 +119,6 @@ ul.filters {
     padding: 0px;
     overflow: hidden;
 }
-
-
 
 button.sort-btn {
     margin: 10px 0px 10px;
@@ -163,7 +159,6 @@ h1.center {
 }
 
 h1.loaded {
-
 }
 
 div.table {
@@ -192,14 +187,12 @@ th {
     background-color: #930000;
     color: white;
     padding: 12px;
-
 }
 
 tr:nth-child(odd) {background-color: #eaeafc;}
 tr:nth-child(even) {background-color: #dedef2;}
 
 div.topBar {
-
     background-color: #bf0000;
 }
 
@@ -260,9 +253,11 @@ input[type="submit"]:hover {
 
 img.logo {
     display: inline-block;
-    height: auto;
-    width: 70px;
+    height: 90px;
+    width: auto;
     float: right;
+    object-fit: contain;
+    margin-top: -5px;
 }
 
 p.topBarTitle {
@@ -272,7 +267,11 @@ p.topBarTitle {
     display: inline-block;
     float: left;
     margin-left: 1%;
-    font-family: Arial, sans-serif;
+
+    font-family: 'Rubik Mono One', sans-serif;
+    font-size: 30px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0px #7a0000;
 }
 
 a.logout-btn {
@@ -359,4 +358,24 @@ div.current-day-info {
 h1.noData {
     text-align: center;
     font-size: 40px;
+}
+
+a.report-btn {
+    padding: 10px 20px;
+    background-color: #dcdde3;
+    border: none;
+    border-radius: 5px;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border: 2px solid transparent;
+}
+
+a.report-btn:hover {
+    background-color: #d0d1d9;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }

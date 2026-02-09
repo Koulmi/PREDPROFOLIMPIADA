@@ -20,11 +20,9 @@
         <li class="left"><a href="{{ url_for('result_itss') }}">ИТСС</a></li>
         <li class="left"><a href="{{ url_for('result_ib') }}">ИБ</a></li>
             </ul>
-            <img class="logo" src="/static/img/logo.jpg">
+            <img class="logo" src="/static/img/logo.png">
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('generate_report') }}">
-                Сформировать отчет (PDF)
-            </a>
+
 
                     <a class="logout-btn" href="{{ url_for('logout') }}">Выйти</a>
                 {% else %}
@@ -36,6 +34,9 @@
         <div>
             {% if current_user.is_authenticated %}
                 <li class="left"><form method="POST" action="/upload" enctype="multipart/form-data">
+                    <a href="{{ url_for('generate_report') }}" class="report-btn">
+                Сформировать отчет (PDF)
+            </a>
     <input type="file" name="file">
     <input type="submit" value="Загрузить список">
                 </form></li>
@@ -233,6 +234,5 @@ function resetFilters() {
 {% endif %}
 </body>
 </html>
-
 
 
