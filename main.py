@@ -95,7 +95,7 @@ def upload():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        if filename.endswith('.xlsx'):
+        try:
             df = pd.read_excel(file_path)
             existing_programs = db.session.query(Programs).all()
             existing_names = [p.name for p in existing_programs]
@@ -130,7 +130,10 @@ def upload():
                             db.session.add(Applications(priority=i, applicants_id=row['id'],
                                                         program_id=all_programs_map[prog_name].id))
             db.session.commit()
-
+        except Exception as e:
+            db.session.rollback()
+            flash("Загрузите файл с расширением xlsx")
+            return redirect(url_for('home'))
         html_table = df.to_html(classes='table table-striped')
         return render_template('result.html', table=html_table)
 
