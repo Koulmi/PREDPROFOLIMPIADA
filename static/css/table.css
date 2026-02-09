@@ -351,8 +351,27 @@ div.topBar > div:last-child > li {
 }
 
 div.current-day-info {
+    margin-left: 5%;
+    font-size: 30px;
+}
+
+div.mainButtons {
+    display: flex
+}
+
+menu.dates {
+    border-radius: 5px;
+    background-color: #dedef2;
+    padding: 10px;
+    display: inline-block;
+    font-size: 35px;
+    margin-left: 5%;
+}
+
+p.homeText {
     text-align: center;
-    font-size: 25px;
+    font-size: 20px;
+    margin: 0% 20% 0% 20%;
 }
 
 h1.noData {
