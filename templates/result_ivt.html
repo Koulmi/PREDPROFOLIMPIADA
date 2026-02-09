@@ -22,9 +22,6 @@
             </ul>
             <img class="logo" src="/static/img/logo.png">
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('generate_report') }}">
-                Сформировать отчет (PDF)
-            </a>
 
                     <a class="logout-btn" href="{{ url_for('logout') }}">Выйти</a>
                 {% else %}
@@ -236,6 +233,7 @@ function resetFilters() {
 {% endif %}
 </body>
 </html>
+
 
 
 
