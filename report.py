@@ -86,7 +86,7 @@ def calculate_day_statistics(df, budget):
     return stats
 
 
-def generate_pdf_report(upload_folder, budget):
+def generate_pdf_report(upload_folder, budget, current_day='01.08'):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=30, bottomMargin=30)
     elements = []
@@ -101,65 +101,92 @@ def generate_pdf_report(upload_folder, budget):
     now = datetime.now().strftime("%d.%m.%Y %H:%M")
     elements.append(Paragraph(f"Отчет сформирован: {now}", style_normal))
     elements.append(Spacer(1, 20))
-    elements.append(Paragraph("Отчет приемной комиссии", style_heading))
-    days = ['01.08', '02.08', '03.08', '04.08']
+    elements.append(Paragraph(f"Отчет приемной комиссии за {current_day}", style_heading))
+
+    file_path = os.path.join(upload_folder, f'{current_day}.xlsx')
+
+    if not os.path.exists(file_path):
+        elements.append(Paragraph(f"Файл данных за {current_day} не найден", style_normal))
+        doc.build(elements)
+        buffer.seek(0)
+        return buffer
+
+    df = pd.read_excel(file_path)
+    current_stats = calculate_day_statistics(df, budget)
+
+    all_days = ['01.08', '02.08', '03.08', '04.08']
     history_scores = {prog: [] for prog in budget}
-    last_day_stats = None
 
-    for day in days:
-        file_path = os.path.join(upload_folder, f'{day}.xlsx')
-        if os.path.exists(file_path):
-            df = pd.read_excel(file_path)
-            stats = calculate_day_statistics(df, budget)
-            last_day_stats = stats
-
+    for day in all_days:
+        if day == current_day:
             for prog in budget:
-                score = stats[prog]['passing_score']
+                score = current_stats[prog]['passing_score']
                 val = score if isinstance(score, (int, float)) else 0
                 history_scores[prog].append(val)
+            break
         else:
-            for prog in budget: history_scores[prog].append(0)
+            hist_file_path = os.path.join(upload_folder, f'{day}.xlsx')
+            if os.path.exists(hist_file_path):
+                hist_df = pd.read_excel(hist_file_path)
+                hist_stats = calculate_day_statistics(hist_df, budget)
+                for prog in budget:
+                    score = hist_stats[prog]['passing_score']
+                    val = score if isinstance(score, (int, float)) else 0
+                    history_scores[prog].append(val)
+            else:
+                for prog in budget:
+                    history_scores[prog].append(0)
 
-    if not last_day_stats:
-        return None
-    elements.append(Paragraph("c. Динамика проходного балла:", style_subheading))
+    if len(history_scores[list(budget.keys())[0]]) > 0:
+        elements.append(Paragraph("c. Динамика проходного балла (с начала до текущего дня):", style_subheading))
 
-    plt.figure(figsize=(8, 5))
+        plt.figure(figsize=(8, 5))
 
-    x = np.arange(len(days))
-    width = 0.2
-    multiplier = 0
+        days_for_chart = []
+        for day in all_days:
+            days_for_chart.append(day)
+            if day == current_day:
+                break
 
-    for prog, scores in history_scores.items():
-        offset = width * multiplier
-        rects = plt.bar(x + offset, scores, width, label=prog)
-        multiplier += 1
+        x = np.arange(len(days_for_chart))
+        width = 0.2
+        multiplier = 0
 
-    plt.title("Динамика проходных баллов")
-    plt.xlabel("Дата")
-    plt.ylabel("Проходной балл")
-    plt.xticks(x + width * 1.5, days)
-    plt.legend(loc='upper left', ncols=4)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    all_scores = [s for sublist in history_scores.values() for s in sublist]
-    max_val = max(all_scores) if all_scores else 300
-    plt.ylim(0, max_val + 10)
+        for prog in budget:
+            scores = history_scores[prog][:len(days_for_chart)]
+            offset = width * multiplier
+            rects = plt.bar(x + offset, scores, width, label=prog)
+            multiplier += 1
 
-    img_buffer = io.BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=100)
-    img_buffer.seek(0)
-    plt.close()
+        plt.title(f"Динамика проходных баллов (до {current_day})")
+        plt.xlabel("Дата")
+        plt.ylabel("Проходной балл")
+        plt.xticks(x + width * 1.5, days_for_chart)
+        plt.legend(loc='upper left', ncols=4)
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-    im = PlatypusImage(img_buffer, width=480, height=300)
-    elements.append(im)
-    elements.append(Spacer(1, 15))
+        all_scores = []
+        for prog in budget:
+            all_scores.extend(history_scores[prog][:len(days_for_chart)])
+        max_val = max(all_scores) if all_scores and max(all_scores) > 0 else 300
+        plt.ylim(0, max_val + 10)
+
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format='png', dpi=100)
+        img_buffer.seek(0)
+        plt.close()
+
+        im = PlatypusImage(img_buffer, width=480, height=300)
+        elements.append(im)
+        elements.append(Spacer(1, 15))
 
     elements.append(PageBreak())
-    elements.append(Paragraph("d. Списки зачисленных абитуриентов:", style_subheading))
+    elements.append(Paragraph(f"d. Списки зачисленных абитуриентов на {current_day}:", style_subheading))
 
     for prog in budget:
         elements.append(Paragraph(f"<b>Направление: {prog}</b>", style_subheading))
-        enrolled = last_day_stats[prog]['enrolled_list']
+
+        enrolled = current_stats[prog]['enrolled_list']
 
         if not enrolled:
             elements.append(Paragraph("Нет зачисленных", style_normal))
@@ -187,7 +214,7 @@ def generate_pdf_report(upload_folder, budget):
         elements.append(Spacer(1, 15))
 
     elements.append(PageBreak())
-    elements.append(Paragraph("e. Статистика по каждой ОП:", style_subheading))
+    elements.append(Paragraph(f"e. Статистика по каждой ОП на {current_day}:", style_subheading))
 
     header = ['Показатель'] + list(budget.keys())
     row_total = ['Общее кол-во заявлений']
@@ -197,7 +224,7 @@ def generate_pdf_report(upload_folder, budget):
     rows_enrolled_prio = {i: [f'Зачислено {i}-го приоритета'] for i in range(1, 5)}
 
     for prog in budget:
-        s = last_day_stats[prog]
+        s = current_stats[prog]
         row_total.append(s['total_apps'])
         row_places.append(s['places'])
         for i in range(1, 5):

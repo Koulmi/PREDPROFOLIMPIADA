@@ -270,13 +270,15 @@ def result():
 
 @app.route('/generate_report')
 def generate_report():
-    pdf_buffer = generate_pdf_report(app.config['UPLOAD_FOLDER'], BUDGET)
+    current_day = session.get('current_day', '01.08')
+    pdf_buffer = generate_pdf_report(app.config['UPLOAD_FOLDER'], BUDGET, current_day)
     if pdf_buffer is None:
         flash("Нет данных для формирования отчета", "danger")
         return redirect(url_for('home'))
 
     now_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    return send_file(pdf_buffer, as_attachment=True, download_name=f"report_{now_str}.pdf", mimetype='application/pdf')
+    return send_file(pdf_buffer, as_attachment=True,
+                     download_name=f"report_{current_day}_{now_str}.pdf", mimetype='application/pdf')
 
 
 @app.route('/logout')
