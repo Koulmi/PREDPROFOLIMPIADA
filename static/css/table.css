@@ -192,6 +192,7 @@ th {
 tr:nth-child(odd) {background-color: #eaeafc;}
 tr:nth-child(even) {background-color: #dedef2;}
 
+
 div.topBar {
     background-color: #bf0000;
 }
@@ -201,6 +202,38 @@ div.centerTopBar {
     font-size: 150%;
     margin: auto;
     width: 100%;
+}
+
+button.topBar {
+    border-style: none;
+    border-width: 0px;
+    font-size: 20px;
+    background-color: #950000;
+    padding: 10px 50px 10px 50px;
+    color: white;
+    text-align: center;
+}
+
+img.logo {
+    display: inline-block;
+    height: 90px;
+    width: auto;
+    float: right;
+    object-fit: contain;
+    margin-top: -5px;
+}
+
+p.topBarTitle {
+    color: white;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+    float: left;
+    margin-left: 1%;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-size: 30px;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0px #7a0000;
 }
 
 button.topBar {
@@ -251,27 +284,24 @@ input[type="submit"]:hover {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
-img.logo {
+a.report-btn {
+    padding: 10px 20px;
+    background-color: #dcdde3;
+    border: none;
+    border-radius: 5px;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    text-decoration: none;
     display: inline-block;
-    height: 90px;
-    width: auto;
-    float: right;
-    object-fit: contain;
-    margin-top: -5px;
+    border: 2px solid transparent;
 }
 
-p.topBarTitle {
-    color: white;
-    font-weight: bold;
-    white-space: nowrap;
-    display: inline-block;
-    float: left;
-    margin-left: 1%;
-
-    font-family: 'Rubik Mono One', sans-serif;
-    font-size: 30px;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 0px #7a0000;
+a.report-btn:hover {
+    background-color: #d0d1d9;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 a.logout-btn {
@@ -280,13 +310,12 @@ a.logout-btn {
     background-color: #a30000;
     border-radius: 0px 0px 10px 10px;
     margin-right: 1%;
-
     color: white;
     padding: 14px 16px;
     text-decoration: none;
 }
 
-a.logout-btn a:hover {
+a.logout-btn:hover {
     background-color: #990000;
 }
 
@@ -296,13 +325,12 @@ a.login-btn {
     background-color: #a30000;
     border-radius: 0px 0px 10px 10px;
     margin-right: 1%;
-
     color: white;
     padding: 14px 16px;
     text-decoration: none;
 }
 
-a.login-btn a:hover {
+a.login-btn:hover {
     background-color: #990000;
 }
 
@@ -319,26 +347,11 @@ div.topBar > div:last-child > li {
     padding: 0;
 }
 
-.flash-message {
-    text-align: center;
-    padding: 10px;
-    margin: 10px auto;
-    max-width: 500px;
-    border-radius: 5px;
-    font-weight: bold;
-}
-
 div.topBar > div:last-child {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 10px;
-}
-
-div.topBar > div:last-child > li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
 }
 
 .flash-message {
@@ -360,6 +373,12 @@ div.current-day-info {
     font-size: 30px;
 }
 
+h1.noData {
+    text-align: center;
+    font-size: 40px;
+}
+
+
 div.mainButtons {
     display: flex
 }
@@ -374,45 +393,25 @@ menu.dates {
 }
 
 div.homeText {
+    flex: 1;
     margin-right: 20%;
     margin-top: 2%;
-}
-
-p.homeText {
-    text-align: center;
-    font-size: 25px;
-    margin: 0% 20% 0% 20%;
 }
 
 h1.homeText {
     font-family: 'Rubik Mono One', sans-serif;
     text-align: center;
     font-size: 75px;
-    margin: 0% 0% 0% 0%;
+    margin: 0;
+    color: #bf0000;
+    line-height: 1.2;
 }
 
-h1.noData {
+p.homeText {
     text-align: center;
-    font-size: 40px;
-}
-
-a.report-btn {
-    padding: 10px 20px;
-    background-color: #dcdde3;
-    border: none;
-    border-radius: 5px;
-    color: #333;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 25px;
+    margin: 0 10%;
     font-family: Arial, sans-serif;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    border: 2px solid transparent;
+    color: #333;
+    line-height: 1.5;
 }
-
-a.report-btn:hover {
-    background-color: #d0d1d9;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-}
-
