@@ -99,7 +99,7 @@
 <script>
        let originalRows = null;
 let currentConsentFilter = 'all';
-let currentSortDirection = 'desc';
+let currentSortDirection = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     const table = document.querySelector('table');
@@ -224,7 +224,7 @@ function updateTableHeader() {
 function resetFilters() {
     document.getElementById('consentFilter').value = 'all';
     currentConsentFilter = 'all';
-    currentSortDirection = 'desc';
+    currentSortDirection = null;
 
     applyFilters();
 }
@@ -234,5 +234,6 @@ function resetFilters() {
 {% endif %}
 </body>
 </html>
+
 
 
